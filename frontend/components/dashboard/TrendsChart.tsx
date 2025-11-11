@@ -22,8 +22,8 @@ export function TrendsChart() {
         <CardDescription>Оценки тональности, полноты и корректности (шкала 0-5)</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={350}>
-          <LineChart data={formattedData} margin={{ bottom: 25 }}>
+        <ResponsiveContainer width="100%" height={380}>
+          <LineChart data={formattedData} margin={{ bottom: 40, left: 5, right: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
             <YAxis domain={[0, 5]} tick={{ fontSize: 12 }} />
@@ -56,7 +56,7 @@ export function TrendsChart() {
               }}
             />
             <Legend
-              wrapperStyle={{ paddingTop: '15px' }}
+              wrapperStyle={{ paddingTop: '20px', paddingBottom: '5px' }}
               iconSize={12}
             />
             <Line
