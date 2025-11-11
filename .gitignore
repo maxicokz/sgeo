@@ -67,7 +67,7 @@ temp/
 # Generated files
 *.pdf
 screenshots/
-reports/
+/reports/
 
 # Redis
 dump.rdb
