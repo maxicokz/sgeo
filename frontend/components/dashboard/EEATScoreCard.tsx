@@ -12,14 +12,14 @@ export function EEATScoreCard() {
   return (
     <Card className="col-span-2">
       <CardHeader>
-        <CardTitle>Общий E-E-A-T скор</CardTitle>
+        <CardTitle className="text-base sm:text-xl">E-E-A-T Скор</CardTitle>
         <CardDescription>Оценка качества источников по ключевым метрикам</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-4">
-              <div className="relative h-32 w-32">
+              <div className="relative h-32 w-32 flex-shrink-0">
                 <svg className="h-full w-full -rotate-90">
                   <circle
                     cx="64"
@@ -47,17 +47,17 @@ export function EEATScoreCard() {
                   <span className="text-3xl font-bold">{overallScore}</span>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 flex-1 min-w-0">
                 {mockEEATData.map((item) => (
                   <div key={item.category} className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground w-24">{item.category}:</span>
-                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <span className="text-sm text-muted-foreground w-20 flex-shrink-0 truncate">{item.category}:</span>
+                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden min-w-0">
                       <div
                         className="h-full bg-primary rounded-full"
                         style={{ width: `${(item.score / item.fullMark) * 100}%` }}
                       />
                     </div>
-                    <span className="text-sm font-medium w-12 text-right">
+                    <span className="text-sm font-medium w-12 text-right flex-shrink-0">
                       {item.score.toFixed(1)}/10
                     </span>
                   </div>
@@ -65,11 +65,14 @@ export function EEATScoreCard() {
               </div>
             </div>
           </div>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height={300}>
+          <div className="flex-1 min-w-0">
+            <ResponsiveContainer width="100%" height={320}>
               <RadarChart data={mockEEATData}>
                 <PolarGrid />
-                <PolarAngleAxis dataKey="category" />
+                <PolarAngleAxis
+                  dataKey="category"
+                  tick={{ fontSize: 12 }}
+                />
                 <PolarRadiusAxis angle={90} domain={[0, 10]} />
                 <Radar
                   name="Оценка"
@@ -78,7 +81,10 @@ export function EEATScoreCard() {
                   fill="#3b82f6"
                   fillOpacity={0.6}
                 />
-                <Legend />
+                <Legend
+                  wrapperStyle={{ paddingTop: '10px' }}
+                  iconSize={12}
+                />
               </RadarChart>
             </ResponsiveContainer>
           </div>

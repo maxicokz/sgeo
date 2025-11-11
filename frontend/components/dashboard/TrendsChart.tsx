@@ -22,11 +22,11 @@ export function TrendsChart() {
         <CardDescription>Оценки тональности, полноты и корректности (шкала 0-5)</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={formattedData}>
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={formattedData} margin={{ bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis domain={[0, 5]} />
+            <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+            <YAxis domain={[0, 5]} tick={{ fontSize: 12 }} />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
@@ -55,7 +55,10 @@ export function TrendsChart() {
                 return null
               }}
             />
-            <Legend />
+            <Legend
+              wrapperStyle={{ paddingTop: '10px' }}
+              iconSize={12}
+            />
             <Line
               type="monotone"
               dataKey="тональность"
