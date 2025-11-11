@@ -1,0 +1,81 @@
+'use client'
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { mockTrendData } from "@/lib/mock-data"
+import { format } from 'date-fns'
+
+export function TrendsChart() {
+  const formattedData = mockTrendData.map(item => ({
+    ...item,
+    date: format(new Date(item.date), 'MMM dd')
+  }))
+
+  return (
+    <Card className="col-span-3">
+      <CardHeader>
+        <CardTitle>Quality Trends Over Time</CardTitle>
+        <CardDescription>Sentiment, completeness, and correctness scores (0-5 scale)</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={formattedData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis domain={[0, 5]} />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="rounded-lg border bg-background p-3 shadow-sm">
+                      <div className="grid gap-2">
+                        <div className="font-semibold">{payload[0].payload.date}</div>
+                        {payload.map((item, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div
+                              className="h-2 w-2 rounded-full"
+                              style={{ backgroundColor: item.color }}
+                            />
+                            <span className="text-sm text-muted-foreground capitalize">
+                              {item.name}:
+                            </span>
+                            <span className="text-sm font-bold">
+                              {typeof item.value === 'number' ? item.value.toFixed(1) : item.value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                return null
+              }}
+            />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="sentiment"
+              stroke="#3b82f6"
+              strokeWidth={2}
+              dot={{ fill: '#3b82f6', r: 4 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="completeness"
+              stroke="#10b981"
+              strokeWidth={2}
+              dot={{ fill: '#10b981', r: 4 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="correctness"
+              stroke="#f59e0b"
+              strokeWidth={2}
+              dot={{ fill: '#f59e0b', r: 4 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  )
+}
