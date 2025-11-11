@@ -18,9 +18,9 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
               <BarChart3 className="h-8 w-8 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold">SGEO Dashboard</h1>
+                <h1 className="text-2xl font-bold">SGEO Дашборд</h1>
                 <p className="text-sm text-muted-foreground">
-                  LLM Monitoring & Analytics Platform
+                  Платформа мониторинга и аналитики LLM
                 </p>
               </div>
             </div>
@@ -35,7 +35,7 @@ export default function DashboardPage() {
       <main className="container mx-auto px-6 py-8">
         {/* Stats Overview */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Overview</h2>
+          <h2 className="text-xl font-semibold mb-4">Обзор</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCards />
           </div>
@@ -75,8 +75,8 @@ export default function DashboardPage() {
       <footer className="border-t mt-12">
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <p>© 2024 SGEO Dashboard. All rights reserved.</p>
-            <p>Last updated: {new Date().toLocaleDateString()}</p>
+            <p>© 2024 SGEO Дашборд. Все права защищены.</p>
+            <p>Последнее обновление: {new Date().toLocaleDateString('ru-RU')}</p>
           </div>
         </div>
       </footer>

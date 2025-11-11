@@ -4,18 +4,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { mockTrendData } from "@/lib/mock-data"
 import { format } from 'date-fns'
+import { ru } from 'date-fns/locale'
 
 export function TrendsChart() {
   const formattedData = mockTrendData.map(item => ({
     ...item,
-    date: format(new Date(item.date), 'MMM dd')
+    date: format(new Date(item.date), 'd MMM', { locale: ru }),
+    тональность: item.sentiment,
+    полнота: item.completeness,
+    корректность: item.correctness,
   }))
 
   return (
     <Card className="col-span-3">
       <CardHeader>
-        <CardTitle>Quality Trends Over Time</CardTitle>
-        <CardDescription>Sentiment, completeness, and correctness scores (0-5 scale)</CardDescription>
+        <CardTitle>Тренды качества</CardTitle>
+        <CardDescription>Оценки тональности, полноты и корректности (шкала 0-5)</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -54,21 +58,24 @@ export function TrendsChart() {
             <Legend />
             <Line
               type="monotone"
-              dataKey="sentiment"
+              dataKey="тональность"
+              name="Тональность"
               stroke="#3b82f6"
               strokeWidth={2}
               dot={{ fill: '#3b82f6', r: 4 }}
             />
             <Line
               type="monotone"
-              dataKey="completeness"
+              dataKey="полнота"
+              name="Полнота"
               stroke="#10b981"
               strokeWidth={2}
               dot={{ fill: '#10b981', r: 4 }}
             />
             <Line
               type="monotone"
-              dataKey="correctness"
+              dataKey="корректность"
+              name="Корректность"
               stroke="#f59e0b"
               strokeWidth={2}
               dot={{ fill: '#f59e0b', r: 4 }}

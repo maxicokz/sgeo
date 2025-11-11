@@ -38,63 +38,63 @@ export interface EEATScore {
 export const mockTopics: Topic[] = [
   {
     id: '1',
-    name: 'Kazakhstan Economy',
+    name: 'Экономика Казахстана',
     priority: 5,
     status: 'good',
     sentiment: 4.2,
     completeness: 3.8,
     correctness: 4.5,
-    category: 'Economy'
+    category: 'Экономика'
   },
   {
     id: '2',
-    name: 'Astana City',
+    name: 'Город Астана',
     priority: 5,
     status: 'good',
     sentiment: 4.5,
     completeness: 4.2,
     correctness: 4.8,
-    category: 'Geography'
+    category: 'География'
   },
   {
     id: '3',
-    name: 'Oil & Gas Industry',
+    name: 'Нефтегазовая промышленность',
     priority: 5,
     status: 'warning',
     sentiment: 3.5,
     completeness: 3.2,
     correctness: 4.0,
-    category: 'Economy'
+    category: 'Экономика'
   },
   {
     id: '4',
-    name: 'Baikonur Cosmodrome',
+    name: 'Космодром Байконур',
     priority: 5,
     status: 'good',
     sentiment: 4.7,
     completeness: 4.5,
     correctness: 4.9,
-    category: 'Geography'
+    category: 'География'
   },
   {
     id: '5',
-    name: 'Tourism',
+    name: 'Туризм',
     priority: 4,
     status: 'warning',
     sentiment: 3.8,
     completeness: 3.0,
     correctness: 3.5,
-    category: 'Tourism'
+    category: 'Туризм'
   },
   {
     id: '6',
-    name: 'Kazakh Culture',
+    name: 'Казахская культура',
     priority: 4,
     status: 'good',
     sentiment: 4.3,
     completeness: 3.9,
     correctness: 4.2,
-    category: 'Culture'
+    category: 'Культура'
   }
 ]
 
@@ -125,38 +125,38 @@ export const mockTrendData: TrendData[] = [
 ]
 
 export const mockEEATData: EEATScore[] = [
-  { category: 'Authorship', score: 9.2, fullMark: 10 },
-  { category: 'Expertise', score: 8.8, fullMark: 10 },
-  { category: 'Authority', score: 9.5, fullMark: 10 },
-  { category: 'Trust', score: 9.0, fullMark: 10 },
-  { category: 'Security', score: 10.0, fullMark: 10 },
-  { category: 'Freshness', score: 8.5, fullMark: 10 }
+  { category: 'Авторство', score: 9.2, fullMark: 10 },
+  { category: 'Экспертность', score: 8.8, fullMark: 10 },
+  { category: 'Авторитетность', score: 9.5, fullMark: 10 },
+  { category: 'Надёжность', score: 9.0, fullMark: 10 },
+  { category: 'Безопасность', score: 10.0, fullMark: 10 },
+  { category: 'Свежесть', score: 8.5, fullMark: 10 }
 ]
 
 export const mockAlerts = [
   {
     id: '1',
     severity: 'critical',
-    message: 'Out-of-citation rate +10% for "Oil & Gas Industry" topic',
-    time: '2 hours ago'
+    message: 'Снижение цитирования на +10% для темы "Нефтегазовая промышленность"',
+    time: '2 часа назад'
   },
   {
     id: '2',
     severity: 'warning',
-    message: 'Sentiment score decreased for "Tourism" topic',
-    time: '5 hours ago'
+    message: 'Снижение оценки тональности для темы "Туризм"',
+    time: '5 часов назад'
   },
   {
     id: '3',
     severity: 'info',
-    message: 'New source detected: economist.com',
-    time: '1 day ago'
+    message: 'Обнаружен новый источник: economist.com',
+    time: '1 день назад'
   }
 ]
 
 export const mockRecommendations = [
-  'Improve content freshness on archived pages',
-  'Increase external backlinks from academic institutions',
-  'Add more structured data to key landing pages',
-  'Optimize mobile experience for tourism pages'
+  'Улучшить свежесть контента на архивных страницах',
+  'Увеличить количество внешних ссылок от академических учреждений',
+  'Добавить больше структурированных данных на ключевые страницы',
+  'Оптимизировать мобильную версию для туристических страниц'
 ]

@@ -32,24 +32,37 @@ export function TopicsTable() {
     }
   }
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'good':
+        return 'Отлично'
+      case 'warning':
+        return 'Внимание'
+      case 'critical':
+        return 'Критично'
+      default:
+        return status
+    }
+  }
+
   return (
     <Card className="col-span-3">
       <CardHeader>
-        <CardTitle>Priority Topics</CardTitle>
-        <CardDescription>Monitoring status across 20 key topics</CardDescription>
+        <CardTitle>Приоритетные темы</CardTitle>
+        <CardDescription>Статус мониторинга по 20 ключевым темам</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 font-medium text-sm">Topic</th>
-                <th className="text-left py-3 px-4 font-medium text-sm">Category</th>
-                <th className="text-center py-3 px-4 font-medium text-sm">Priority</th>
-                <th className="text-center py-3 px-4 font-medium text-sm">Sentiment</th>
-                <th className="text-center py-3 px-4 font-medium text-sm">Completeness</th>
-                <th className="text-center py-3 px-4 font-medium text-sm">Correctness</th>
-                <th className="text-center py-3 px-4 font-medium text-sm">Status</th>
+                <th className="text-left py-3 px-4 font-medium text-sm">Тема</th>
+                <th className="text-left py-3 px-4 font-medium text-sm">Категория</th>
+                <th className="text-center py-3 px-4 font-medium text-sm">Приоритет</th>
+                <th className="text-center py-3 px-4 font-medium text-sm">Тональность</th>
+                <th className="text-center py-3 px-4 font-medium text-sm">Полнота</th>
+                <th className="text-center py-3 px-4 font-medium text-sm">Корректность</th>
+                <th className="text-center py-3 px-4 font-medium text-sm">Статус</th>
               </tr>
             </thead>
             <tbody>
@@ -89,7 +102,7 @@ export function TopicsTable() {
                     <div className="flex items-center justify-center gap-1">
                       <Badge variant={getStatusColor(topic.status)} className="gap-1">
                         {getStatusIcon(topic.status)}
-                        <span className="capitalize">{topic.status}</span>
+                        <span>{getStatusText(topic.status)}</span>
                       </Badge>
                     </div>
                   </td>

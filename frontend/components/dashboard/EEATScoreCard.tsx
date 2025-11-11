@@ -12,8 +12,8 @@ export function EEATScoreCard() {
   return (
     <Card className="col-span-2">
       <CardHeader>
-        <CardTitle>Overall E-E-A-T Score</CardTitle>
-        <CardDescription>Source quality assessment across key metrics</CardDescription>
+        <CardTitle>Общий E-E-A-T скор</CardTitle>
+        <CardDescription>Оценка качества источников по ключевым метрикам</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between">
@@ -72,7 +72,7 @@ export function EEATScoreCard() {
                 <PolarAngleAxis dataKey="category" />
                 <PolarRadiusAxis angle={90} domain={[0, 10]} />
                 <Radar
-                  name="Score"
+                  name="Оценка"
                   dataKey="score"
                   stroke="#3b82f6"
                   fill="#3b82f6"

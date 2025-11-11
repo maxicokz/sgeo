@@ -35,8 +35,8 @@ export function AlertsPanel() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Alerts & Notifications</CardTitle>
-        <CardDescription>Recent system alerts and important updates</CardDescription>
+        <CardTitle>Оповещения и уведомления</CardTitle>
+        <CardDescription>Последние системные оповещения и важные обновления</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">

@@ -39,30 +39,30 @@ export function StatsCards() {
   return (
     <>
       <StatCard
-        title="Average Sentiment"
+        title="Средняя тональность"
         value="4.2/5.0"
-        change="+0.3 from last week"
+        change="+0.3 за неделю"
         changeType="positive"
         icon={<TrendingUp className="h-4 w-4" />}
       />
       <StatCard
-        title="Topics Monitored"
+        title="Отслеживаемых тем"
         value="20"
-        change="6 categories"
+        change="6 категорий"
         changeType="neutral"
         icon={<Database className="h-4 w-4" />}
       />
       <StatCard
-        title="LLM Systems"
+        title="LLM систем"
         value="5"
-        change="500 queries/day"
+        change="500 запросов/день"
         changeType="neutral"
         icon={<Globe className="h-4 w-4" />}
       />
       <StatCard
-        title="Source Quality"
+        title="Качество источников"
         value="92/100"
-        change="+5 from last month"
+        change="+5 за месяц"
         changeType="positive"
         icon={<Target className="h-4 w-4" />}
       />

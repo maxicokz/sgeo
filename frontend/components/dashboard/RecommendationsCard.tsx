@@ -10,9 +10,9 @@ export function RecommendationsCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Lightbulb className="h-5 w-5 text-yellow-500" />
-          Recommendations
+          Рекомендации
         </CardTitle>
-        <CardDescription>AI-powered suggestions to improve performance</CardDescription>
+        <CardDescription>AI-рекомендации для улучшения показателей</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">

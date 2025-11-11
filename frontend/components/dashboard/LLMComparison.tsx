@@ -16,8 +16,8 @@ export function LLMComparison() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>LLM Performance Comparison</CardTitle>
-        <CardDescription>Average quality scores across all topics</CardDescription>
+        <CardTitle>Сравнение производительности LLM</CardTitle>
+        <CardDescription>Средние оценки качества по всем темам</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -33,7 +33,7 @@ export function LLMComparison() {
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-bold">{payload[0].payload.llm}</span>
                         <span className="text-sm text-muted-foreground">
-                          Score: <span className="font-bold text-foreground">{payload[0].value}/5.0</span>
+                          Оценка: <span className="font-bold text-foreground">{payload[0].value}/5.0</span>
                         </span>
                       </div>
                     </div>

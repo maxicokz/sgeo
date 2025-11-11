@@ -10,8 +10,8 @@ export function TopSourcesChart() {
   return (
     <Card className="col-span-2">
       <CardHeader>
-        <CardTitle>Top Cited Sources</CardTitle>
-        <CardDescription>Most frequently referenced domains across LLM responses</CardDescription>
+        <CardTitle>Топ цитируемых источников</CardTitle>
+        <CardDescription>Наиболее часто упоминаемые домены в ответах LLM</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -27,7 +27,7 @@ export function TopSourcesChart() {
                       <div className="grid grid-cols-2 gap-2">
                         <div className="flex flex-col">
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            Domain
+                            Домен
                           </span>
                           <span className="font-bold text-muted-foreground">
                             {payload[0].payload.domain}
@@ -35,7 +35,7 @@ export function TopSourcesChart() {
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[0.70rem] uppercase text-muted-foreground">
-                            Citations
+                            Цитирований
                           </span>
                           <span className="font-bold">
                             {payload[0].value} ({payload[0].payload.percentage}%)
