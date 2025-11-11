@@ -16,7 +16,8 @@ import {
   BarChart3,
   Target,
   BookOpen,
-  Activity
+  Activity,
+  MessageSquare
 } from 'lucide-react'
 
 const menuItems = [
@@ -51,6 +52,12 @@ const menuItems = [
         href: '/topics',
         icon: FileText,
         badge: '20'
+      },
+      {
+        title: 'Нарративы',
+        href: '/narratives',
+        icon: MessageSquare,
+        badge: '5'
       },
       {
         title: 'Источники',
