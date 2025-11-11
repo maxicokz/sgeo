@@ -15,15 +15,21 @@ export function TrendsChart() {
     корректность: item.correctness,
   }))
 
+  const legendItems = [
+    { name: 'Тональность', color: '#3b82f6' },
+    { name: 'Полнота', color: '#10b981' },
+    { name: 'Корректность', color: '#f59e0b' }
+  ]
+
   return (
     <Card className="col-span-3">
       <CardHeader>
         <CardTitle>Тренды качества</CardTitle>
         <CardDescription>Оценки тональности, полноты и корректности (шкала 0-5)</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={380}>
-          <LineChart data={formattedData} margin={{ bottom: 40, left: 5, right: 5 }}>
+      <CardContent className="space-y-4">
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={formattedData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
             <YAxis domain={[0, 5]} tick={{ fontSize: 12 }} />
@@ -55,10 +61,6 @@ export function TrendsChart() {
                 return null
               }}
             />
-            <Legend
-              wrapperStyle={{ paddingTop: '20px', paddingBottom: '5px' }}
-              iconSize={12}
-            />
             <Line
               type="monotone"
               dataKey="тональность"
@@ -85,6 +87,19 @@ export function TrendsChart() {
             />
           </LineChart>
         </ResponsiveContainer>
+
+        {/* Custom Legend */}
+        <div className="flex items-center justify-center gap-6 pt-2">
+          {legendItems.map((item) => (
+            <div key={item.name} className="flex items-center gap-2">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="text-sm text-slate-600">{item.name}</span>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   )

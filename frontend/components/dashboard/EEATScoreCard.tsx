@@ -65,9 +65,9 @@ export function EEATScoreCard() {
               </div>
             </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <ResponsiveContainer width="100%" height={380}>
-              <RadarChart data={mockEEATData} margin={{ bottom: 20 }}>
+          <div className="flex-1 min-w-0 space-y-4">
+            <ResponsiveContainer width="100%" height={320}>
+              <RadarChart data={mockEEATData}>
                 <PolarGrid />
                 <PolarAngleAxis
                   dataKey="category"
@@ -81,12 +81,16 @@ export function EEATScoreCard() {
                   fill="#3b82f6"
                   fillOpacity={0.6}
                 />
-                <Legend
-                  wrapperStyle={{ paddingTop: '20px', paddingBottom: '5px' }}
-                  iconSize={12}
-                />
               </RadarChart>
             </ResponsiveContainer>
+
+            {/* Custom Legend */}
+            <div className="flex items-center justify-center pt-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-sm bg-blue-500" />
+                <span className="text-sm text-slate-600">Оценка</span>
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>
