@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadcn UI Components - Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(214.3 31.8% 91.4%)",
+                        input: "hsl(214.3 31.8% 91.4%)",
+                        ring: "hsl(221.2 83.2% 53.3%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(222.2 84% 4.9%)",
+                        primary: {
+                            DEFAULT: "hsl(221.2 83.2% 53.3%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(222.2 47.4% 11.2%)",
+                        },
+                        destructive: {
+                            DEFAULT: "hsl(0 84.2% 60.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(215.4 16.3% 46.9%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(222.2 47.4% 11.2%)",
+                        },
+                    },
+                    borderRadius: {
+                        lg: "0.5rem",
+                        md: "calc(0.5rem - 2px)",
+                        sm: "calc(0.5rem - 4px)",
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            padding: 40px 20px;
+        }
+        .component-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .component-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+        .component-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        .component-demo {
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #ffffff;
+        }
+        .demo-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-bold text-slate-900 mb-4">Shadcn UI Design System</h1>
+            <p class="text-slate-600 text-lg">Полный набор компонентов для экспорта в Figma</p>
+        </header>
+
+        <!-- Buttons -->
+        <section class="component-section">
+            <h2 class="component-title">Buttons</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Primary</div>
+                    <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4">
+                        Button
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Secondary</div>
+                    <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 py-2 px-4">
+                        Button
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Destructive</div>
+                    <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 py-2 px-4">
+                        Button
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Outline</div>
+                    <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4">
+                        Button
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Ghost</div>
+                    <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4">
+                        Button
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Link</div>
+                    <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background underline-offset-4 hover:underline text-primary h-10 py-2 px-4">
+                        Button
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Small</div>
+                    <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3">
+                        Button
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Large</div>
+                    <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8">
+                        Button
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="component-section">
+            <h2 class="component-title">Cards</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Basic Card</div>
+                    <div class="rounded-lg border bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                        <div class="flex flex-col space-y-1.5 p-6">
+                            <h3 class="text-xl font-semibold leading-none tracking-tight text-slate-900">Card Title</h3>
+                            <p class="text-sm text-slate-600">Card Description</p>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <p class="text-sm text-slate-700">Card content goes here. This is a simple card component.</p>
+                        </div>
+                        <div class="flex items-center p-6 pt-0">
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4">
+                                Action
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Card with Image</div>
+                    <div class="rounded-lg border bg-white shadow-sm">
+                        <div class="h-32 bg-gradient-to-r from-blue-500 to-purple-600 rounded-t-lg"></div>
+                        <div class="flex flex-col space-y-1.5 p-6">
+                            <h3 class="text-xl font-semibold leading-none tracking-tight text-slate-900">Image Card</h3>
+                            <p class="text-sm text-slate-600">With gradient header</p>
+                        </div>
+                        <div class="p-6 pt-0">
+                            <p class="text-sm text-slate-700">Card with decorative header section.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Badges -->
+        <section class="component-section">
+            <h2 class="component-title">Badges</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Default</div>
+                    <span class="inline-flex items-center rounded-full border border-transparent bg-primary text-primary-foreground px-2.5 py-0.5 text-xs font-semibold transition-colors">
+                        Default
+                    </span>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Secondary</div>
+                    <span class="inline-flex items-center rounded-full border border-transparent bg-secondary text-secondary-foreground px-2.5 py-0.5 text-xs font-semibold transition-colors">
+                        Secondary
+                    </span>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Success</div>
+                    <span class="inline-flex items-center rounded-full border border-transparent bg-green-500 text-white px-2.5 py-0.5 text-xs font-semibold transition-colors">
+                        Success
+                    </span>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Warning</div>
+                    <span class="inline-flex items-center rounded-full border border-transparent bg-yellow-500 text-white px-2.5 py-0.5 text-xs font-semibold transition-colors">
+                        Warning
+                    </span>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Danger</div>
+                    <span class="inline-flex items-center rounded-full border border-transparent bg-red-500 text-white px-2.5 py-0.5 text-xs font-semibold transition-colors">
+                        Danger
+                    </span>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Outline</div>
+                    <span class="inline-flex items-center rounded-full border border-slate-300 px-2.5 py-0.5 text-xs font-semibold transition-colors text-slate-900">
+                        Outline
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inputs -->
+        <section class="component-section">
+            <h2 class="component-title">Input Fields</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Text Input</div>
+                    <input type="text" placeholder="Enter text..." class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Email Input</div>
+                    <input type="email" placeholder="email@example.com" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Password Input</div>
+                    <input type="password" placeholder="••••••••" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Disabled Input</div>
+                    <input type="text" placeholder="Disabled" disabled class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                </div>
+            </div>
+        </section>
+
+        <!-- Textarea -->
+        <section class="component-section">
+            <h2 class="component-title">Textarea</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Default</div>
+                    <textarea placeholder="Type your message here..." class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" rows="4"></textarea>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">With Label</div>
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-2">Message</label>
+                    <textarea placeholder="Your message..." class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" rows="4"></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checkboxes and Radio -->
+        <section class="component-section">
+            <h2 class="component-title">Checkboxes & Radio Buttons</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Checkboxes</div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="check1" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <label for="check1" class="text-sm font-medium leading-none">Option 1</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="check2" checked class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <label for="check2" class="text-sm font-medium leading-none">Option 2</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="check3" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <label for="check3" class="text-sm font-medium leading-none">Option 3</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Radio Buttons</div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <input type="radio" name="radio" id="radio1" class="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <label for="radio1" class="text-sm font-medium leading-none">Option A</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="radio" name="radio" id="radio2" checked class="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <label for="radio2" class="text-sm font-medium leading-none">Option B</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="radio" name="radio" id="radio3" class="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <label for="radio3" class="text-sm font-medium leading-none">Option C</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Switch -->
+        <section class="component-section">
+            <h2 class="component-title">Switch / Toggle</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Off State</div>
+                    <button type="button" role="switch" aria-checked="false" class="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 bg-input">
+                        <span class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform translate-x-0"></span>
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">On State</div>
+                    <button type="button" role="switch" aria-checked="true" class="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 bg-primary">
+                        <span class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform translate-x-5"></span>
+                    </button>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">With Label</div>
+                    <div class="flex items-center space-x-2">
+                        <button type="button" role="switch" aria-checked="true" class="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 bg-primary">
+                            <span class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform translate-x-5"></span>
+                        </button>
+                        <label class="text-sm font-medium leading-none">Enable notifications</label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts -->
+        <section class="component-section">
+            <h2 class="component-title">Alerts</h2>
+            <div class="space-y-4">
+                <div class="component-demo">
+                    <div class="demo-label">Default Alert</div>
+                    <div class="relative w-full rounded-lg border p-4 bg-background">
+                        <h5 class="mb-1 font-medium leading-none tracking-tight">Heads up!</h5>
+                        <div class="text-sm opacity-90">You can add components to your app using the cli.</div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Info Alert</div>
+                    <div class="relative w-full rounded-lg border p-4 bg-blue-50 border-blue-200">
+                        <h5 class="mb-1 font-medium leading-none tracking-tight text-blue-900">Information</h5>
+                        <div class="text-sm text-blue-800">This is an informational alert message.</div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Success Alert</div>
+                    <div class="relative w-full rounded-lg border p-4 bg-green-50 border-green-200">
+                        <h5 class="mb-1 font-medium leading-none tracking-tight text-green-900">Success</h5>
+                        <div class="text-sm text-green-800">Your changes have been saved successfully!</div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Warning Alert</div>
+                    <div class="relative w-full rounded-lg border p-4 bg-yellow-50 border-yellow-200">
+                        <h5 class="mb-1 font-medium leading-none tracking-tight text-yellow-900">Warning</h5>
+                        <div class="text-sm text-yellow-800">Please review your settings before continuing.</div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Error Alert</div>
+                    <div class="relative w-full rounded-lg border p-4 bg-red-50 border-red-200">
+                        <h5 class="mb-1 font-medium leading-none tracking-tight text-red-900">Error</h5>
+                        <div class="text-sm text-red-800">Something went wrong. Please try again.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress -->
+        <section class="component-section">
+            <h2 class="component-title">Progress Bars</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">25% Progress</div>
+                    <div class="relative w-full overflow-hidden rounded-full bg-secondary h-4">
+                        <div class="h-full w-full flex-1 bg-primary transition-all" style="transform: translateX(-75%)"></div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">50% Progress</div>
+                    <div class="relative w-full overflow-hidden rounded-full bg-secondary h-4">
+                        <div class="h-full w-full flex-1 bg-primary transition-all" style="transform: translateX(-50%)"></div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">75% Progress</div>
+                    <div class="relative w-full overflow-hidden rounded-full bg-secondary h-4">
+                        <div class="h-full w-full flex-1 bg-primary transition-all" style="transform: translateX(-25%)"></div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">100% Progress</div>
+                    <div class="relative w-full overflow-hidden rounded-full bg-secondary h-4">
+                        <div class="h-full w-full flex-1 bg-primary transition-all" style="transform: translateX(0%)"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Avatar -->
+        <section class="component-section">
+            <h2 class="component-title">Avatars</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Small Avatar</div>
+                    <div class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted">
+                        <span class="flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-medium">JD</span>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Medium Avatar</div>
+                    <div class="relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full bg-muted">
+                        <span class="flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-medium text-lg">AB</span>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Large Avatar</div>
+                    <div class="relative flex h-16 w-16 shrink-0 overflow-hidden rounded-full bg-muted">
+                        <span class="flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-medium text-xl">CD</span>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">With Image</div>
+                    <div class="relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Separator -->
+        <section class="component-section">
+            <h2 class="component-title">Separators</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Horizontal</div>
+                    <div class="space-y-4">
+                        <div>Content above</div>
+                        <div class="shrink-0 bg-border h-[1px] w-full"></div>
+                        <div>Content below</div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Vertical</div>
+                    <div class="flex items-center space-x-4 h-20">
+                        <div>Left</div>
+                        <div class="shrink-0 bg-border w-[1px] h-full"></div>
+                        <div>Right</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Table -->
+        <section class="component-section">
+            <h2 class="component-title">Table</h2>
+            <div class="component-demo">
+                <div class="demo-label">Data Table</div>
+                <div class="w-full overflow-auto">
+                    <table class="w-full caption-bottom text-sm">
+                        <thead class="border-b">
+                            <tr class="border-b transition-colors hover:bg-muted/50">
+                                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Name</th>
+                                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Status</th>
+                                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Email</th>
+                                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b transition-colors hover:bg-muted/50">
+                                <td class="p-4 align-middle">John Doe</td>
+                                <td class="p-4 align-middle">
+                                    <span class="inline-flex items-center rounded-full border border-transparent bg-green-500 text-white px-2.5 py-0.5 text-xs font-semibold">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="p-4 align-middle">john@example.com</td>
+                                <td class="p-4 align-middle">Admin</td>
+                            </tr>
+                            <tr class="border-b transition-colors hover:bg-muted/50">
+                                <td class="p-4 align-middle">Jane Smith</td>
+                                <td class="p-4 align-middle">
+                                    <span class="inline-flex items-center rounded-full border border-transparent bg-green-500 text-white px-2.5 py-0.5 text-xs font-semibold">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="p-4 align-middle">jane@example.com</td>
+                                <td class="p-4 align-middle">User</td>
+                            </tr>
+                            <tr class="border-b transition-colors hover:bg-muted/50">
+                                <td class="p-4 align-middle">Bob Johnson</td>
+                                <td class="p-4 align-middle">
+                                    <span class="inline-flex items-center rounded-full border border-transparent bg-yellow-500 text-white px-2.5 py-0.5 text-xs font-semibold">
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="p-4 align-middle">bob@example.com</td>
+                                <td class="p-4 align-middle">User</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabs -->
+        <section class="component-section">
+            <h2 class="component-title">Tabs</h2>
+            <div class="component-demo">
+                <div class="demo-label">Tab Navigation</div>
+                <div class="w-full">
+                    <div class="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-full">
+                        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background text-foreground shadow-sm">
+                            Account
+                        </button>
+                        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                            Password
+                        </button>
+                        <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                            Notifications
+                        </button>
+                    </div>
+                    <div class="mt-4 p-4 border rounded-md">
+                        <h3 class="text-lg font-semibold mb-2">Account Settings</h3>
+                        <p class="text-sm text-muted-foreground">Make changes to your account here. Click save when you're done.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Select -->
+        <section class="component-section">
+            <h2 class="component-title">Select / Dropdown</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Default Select</div>
+                    <div class="relative">
+                        <select class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                            <option>Select an option</option>
+                            <option>Option 1</option>
+                            <option>Option 2</option>
+                            <option>Option 3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">With Label</div>
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block mb-2">Select Framework</label>
+                    <select class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                        <option>Next.js</option>
+                        <option>React</option>
+                        <option>Vue</option>
+                        <option>Svelte</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dialog/Modal Preview -->
+        <section class="component-section">
+            <h2 class="component-title">Dialog / Modal</h2>
+            <div class="component-demo">
+                <div class="demo-label">Modal Structure</div>
+                <div class="fixed z-50 bg-background p-6 shadow-lg rounded-lg border max-w-lg" style="position: relative; margin: 20px auto;">
+                    <div class="flex flex-col space-y-1.5 text-center sm:text-left mb-4">
+                        <h2 class="text-lg font-semibold leading-none tracking-tight">Dialog Title</h2>
+                        <p class="text-sm text-muted-foreground">Dialog description goes here</p>
+                    </div>
+                    <div class="py-4">
+                        <p class="text-sm">This is a dialog component. You can put any content here.</p>
+                    </div>
+                    <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4">
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input hover:bg-accent hover:text-accent-foreground h-10 px-4">
+                            Cancel
+                        </button>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slider -->
+        <section class="component-section">
+            <h2 class="component-title">Slider</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Default Slider</div>
+                    <div class="relative flex w-full touch-none select-none items-center">
+                        <div class="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
+                            <div class="absolute h-full bg-primary" style="width: 50%"></div>
+                        </div>
+                        <div class="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" style="left: 50%; transform: translateX(-50%)"></div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">With Values</div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span>Volume</span>
+                            <span class="font-medium">75%</span>
+                        </div>
+                        <div class="relative flex w-full touch-none select-none items-center">
+                            <div class="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
+                                <div class="absolute h-full bg-primary" style="width: 75%"></div>
+                            </div>
+                            <div class="absolute block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" style="left: 75%; transform: translateX(-50%)"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accordion -->
+        <section class="component-section">
+            <h2 class="component-title">Accordion</h2>
+            <div class="component-demo">
+                <div class="demo-label">Accordion Items</div>
+                <div class="w-full space-y-2">
+                    <div class="border rounded-md">
+                        <button class="flex flex-1 items-center justify-between py-4 px-4 font-medium transition-all hover:bg-muted/50 w-full text-left">
+                            <span>Is it accessible?</span>
+                            <svg class="h-4 w-4 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="px-4 pb-4 pt-0 text-sm text-muted-foreground">
+                            Yes. It adheres to the WAI-ARIA design pattern.
+                        </div>
+                    </div>
+                    <div class="border rounded-md">
+                        <button class="flex flex-1 items-center justify-between py-4 px-4 font-medium transition-all hover:bg-muted/50 w-full text-left">
+                            <span>Is it styled?</span>
+                            <svg class="h-4 w-4 shrink-0 transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="border rounded-md">
+                        <button class="flex flex-1 items-center justify-between py-4 px-4 font-medium transition-all hover:bg-muted/50 w-full text-left">
+                            <span>Is it animated?</span>
+                            <svg class="h-4 w-4 shrink-0 transition-transform duration-200 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Toast / Notification -->
+        <section class="component-section">
+            <h2 class="component-title">Toast Notifications</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Success Toast</div>
+                    <div class="pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-4 pr-6 shadow-lg transition-all bg-background">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 w-5 h-5 rounded-full bg-green-500"></div>
+                            <div class="grid gap-1">
+                                <div class="text-sm font-semibold">Success</div>
+                                <div class="text-sm opacity-90">Your changes have been saved.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Error Toast</div>
+                    <div class="pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-4 pr-6 shadow-lg transition-all bg-background border-red-200">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 w-5 h-5 rounded-full bg-red-500"></div>
+                            <div class="grid gap-1">
+                                <div class="text-sm font-semibold text-red-900">Error</div>
+                                <div class="text-sm opacity-90">Something went wrong.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Context Menu / Dropdown -->
+        <section class="component-section">
+            <h2 class="component-title">Dropdown Menu</h2>
+            <div class="component-demo">
+                <div class="demo-label">Menu Structure</div>
+                <div class="z-50 min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 text-popover-foreground shadow-md" style="width: fit-content;">
+                    <div class="px-2 py-1.5 text-sm font-semibold">My Account</div>
+                    <div class="h-px bg-muted my-1"></div>
+                    <div class="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+                        Profile
+                    </div>
+                    <div class="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+                        Settings
+                    </div>
+                    <div class="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+                        Keyboard shortcuts
+                    </div>
+                    <div class="h-px bg-muted my-1"></div>
+                    <div class="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground text-red-600">
+                        Log out
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Label -->
+        <section class="component-section">
+            <h2 class="component-title">Labels</h2>
+            <div class="component-grid">
+                <div class="component-demo">
+                    <div class="demo-label">Form Label</div>
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Email address
+                    </label>
+                </div>
+                <div class="component-demo">
+                    <div class="demo-label">Required Label</div>
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Password <span class="text-red-500">*</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Example -->
+        <section class="component-section">
+            <h2 class="component-title">Form Example</h2>
+            <div class="component-demo">
+                <div class="demo-label">Complete Form</div>
+                <form class="space-y-4 max-w-md">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none">Name</label>
+                        <input type="text" placeholder="John Doe" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none">Email</label>
+                        <input type="email" placeholder="john@example.com" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none">Message</label>
+                        <textarea placeholder="Your message..." class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" rows="4"></textarea>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="terms" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                        <label for="terms" class="text-sm font-medium leading-none">I agree to the terms and conditions</label>
+                    </div>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-8 w-full">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>
