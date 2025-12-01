@@ -13,7 +13,8 @@ const logger = createChildLogger({ module: 'repository' });
 export async function getPromptsWithResponses({ limit = 10, unevaluatedOnly = true } = {}) {
   const client = getSupabaseClient();
 
-  let query = client
+  // Получаем все промпты с ответами
+  const { data: promptsData, error: promptsError } = await client
     .from('prompts')
     .select(`
       id,
@@ -31,31 +32,31 @@ export async function getPromptsWithResponses({ limit = 10, unevaluatedOnly = tr
     .order('created_at', { ascending: false })
     .limit(limit);
 
-  if (unevaluatedOnly) {
-    // Получаем промпты, у которых есть ответы без оценок
+  if (promptsError) {
+    logger.error({ error: promptsError }, 'Failed to fetch prompts with responses');
+    throw promptsError;
+  }
+
+  let promptsWithResponses = (promptsData || []).filter(
+    (p) => p.responses && p.responses.length > 0
+  );
+
+  if (unevaluatedOnly && promptsWithResponses.length > 0) {
+    // Получаем ID уже оцененных ответов
     const { data: evaluatedResponseIds } = await client
       .from('evaluations')
       .select('response_id');
 
-    const evaluatedIds = (evaluatedResponseIds || []).map((e) => e.response_id);
+    const evaluatedIds = new Set((evaluatedResponseIds || []).map((e) => e.response_id));
 
-    if (evaluatedIds.length > 0) {
-      // Фильтруем промпты с неоцененными ответами
-      query = query.not('responses.id', 'in', `(${evaluatedIds.join(',')})`);
-    }
+    // Фильтруем ответы, оставляя только неоцененные
+    promptsWithResponses = promptsWithResponses
+      .map((prompt) => ({
+        ...prompt,
+        responses: prompt.responses.filter((r) => !evaluatedIds.has(r.id)),
+      }))
+      .filter((p) => p.responses.length > 0);
   }
-
-  const { data, error } = await query;
-
-  if (error) {
-    logger.error({ error }, 'Failed to fetch prompts with responses');
-    throw error;
-  }
-
-  // Фильтруем промпты, у которых есть ответы
-  const promptsWithResponses = (data || []).filter(
-    (p) => p.responses && p.responses.length > 0
-  );
 
   logger.info({ count: promptsWithResponses.length }, 'Fetched prompts with responses');
   return promptsWithResponses;
@@ -145,11 +146,12 @@ export async function getEvaluationResults({ limit = 50, offset = 0 } = {}) {
       avg_score,
       evaluated_at,
       evaluator_model,
-      responses (
+      responses!inner (
         id,
         model_name,
         response_text,
-        prompts (
+        prompt_id,
+        prompts!inner (
           id,
           text
         )
