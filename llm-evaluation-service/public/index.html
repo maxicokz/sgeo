@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Evaluation Dashboard</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>LLM Evaluation Dashboard</h1>
+      <p class="subtitle">G-Eval Methodology</p>
+    </header>
+
+    <!-- Status Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-content">
+          <span class="stat-value" id="totalPrompts">-</span>
+          <span class="stat-label">Промптов</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💬</div>
+        <div class="stat-content">
+          <span class="stat-value" id="totalResponses">-</span>
+          <span class="stat-label">Ответов</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <span class="stat-value" id="totalEvaluations">-</span>
+          <span class="stat-label">Оценено</span>
+        </div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-content">
+          <span class="stat-value" id="pendingEvaluations">-</span>
+          <span class="stat-label">Ожидает оценки</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Average Scores -->
+    <section class="card">
+      <h2>Средние оценки</h2>
+      <div class="scores-grid" id="averageScores">
+        <div class="score-item">
+          <div class="score-bar">
+            <div class="score-fill" id="coherenceBar" style="width: 0%"></div>
+          </div>
+          <div class="score-info">
+            <span class="score-name">Coherence</span>
+            <span class="score-value" id="coherenceValue">-</span>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-bar">
+            <div class="score-fill" id="consistencyBar" style="width: 0%"></div>
+          </div>
+          <div class="score-info">
+            <span class="score-name">Consistency</span>
+            <span class="score-value" id="consistencyValue">-</span>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-bar">
+            <div class="score-fill" id="fluencyBar" style="width: 0%"></div>
+          </div>
+          <div class="score-info">
+            <span class="score-name">Fluency</span>
+            <span class="score-value" id="fluencyValue">-</span>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-bar">
+            <div class="score-fill" id="relevanceBar" style="width: 0%"></div>
+          </div>
+          <div class="score-info">
+            <span class="score-name">Relevance</span>
+            <span class="score-value" id="relevanceValue">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="overall-score">
+        <span>Общий балл:</span>
+        <span class="overall-value" id="overallScore">-</span>
+        <span class="overall-max">/ 5.00</span>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <section class="card">
+      <h2>Действия</h2>
+      <div class="actions">
+        <div class="action-group">
+          <label for="evaluateLimit">Лимит оценок:</label>
+          <input type="number" id="evaluateLimit" value="10" min="1" max="100">
+          <button class="btn btn-primary" id="evaluateBtn" onclick="runEvaluation()">
+            Запустить оценку
+          </button>
+        </div>
+        <div class="action-group">
+          <label for="promptId">ID промпта (UUID):</label>
+          <input type="text" id="promptId" placeholder="550e8400-e29b-41d4-a716-446655440000">
+          <button class="btn btn-secondary" onclick="evaluatePrompt()">
+            Оценить промпт
+          </button>
+        </div>
+      </div>
+      <div id="actionResult" class="action-result hidden"></div>
+    </section>
+
+    <!-- Scheduler Status -->
+    <section class="card">
+      <h2>Планировщик</h2>
+      <div class="scheduler-info">
+        <div class="scheduler-item">
+          <span class="scheduler-label">Статус:</span>
+          <span class="scheduler-value" id="schedulerEnabled">-</span>
+        </div>
+        <div class="scheduler-item">
+          <span class="scheduler-label">Расписание:</span>
+          <span class="scheduler-value" id="schedulerSchedule">-</span>
+        </div>
+        <div class="scheduler-item">
+          <span class="scheduler-label">Выполняется:</span>
+          <span class="scheduler-value" id="schedulerRunning">-</span>
+        </div>
+        <div class="scheduler-item">
+          <span class="scheduler-label">Последний запуск:</span>
+          <span class="scheduler-value" id="lastEvaluation">-</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Table -->
+    <section class="card">
+      <h2>Результаты оценок</h2>
+      <div class="table-controls">
+        <button class="btn btn-small" onclick="loadResults()" id="refreshResults">
+          Обновить
+        </button>
+        <div class="pagination-info">
+          Показано: <span id="resultsShown">0</span> из <span id="resultsTotal">0</span>
+        </div>
+      </div>
+      <div class="table-container">
+        <table id="resultsTable">
+          <thead>
+            <tr>
+              <th>Модель</th>
+              <th>Coherence</th>
+              <th>Consistency</th>
+              <th>Fluency</th>
+              <th>Relevance</th>
+              <th>Avg</th>
+              <th>Дата</th>
+              <th>Детали</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody">
+            <tr>
+              <td colspan="8" class="loading">Загрузка...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button class="btn btn-small" id="prevPage" onclick="changePage(-1)" disabled>
+          ← Назад
+        </button>
+        <span id="pageInfo">Страница 1</span>
+        <button class="btn btn-small" id="nextPage" onclick="changePage(1)">
+          Вперёд →
+        </button>
+      </div>
+    </section>
+
+    <!-- Modal for details -->
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <h3>Детали оценки</h3>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <footer>
+      <p>LLM Evaluation Service &bull; G-Eval Methodology</p>
+      <p class="footer-meta">
+        <span id="serverStatus" class="status-indicator">●</span>
+        <span id="serverStatusText">Проверка соединения...</span>
+      </p>
+    </footer>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

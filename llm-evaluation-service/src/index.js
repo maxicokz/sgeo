@@ -1,10 +1,16 @@
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import Fastify from 'fastify';
+import fastifyStatic from '@fastify/static';
 import { config, validateConfig } from './config.js';
 import { logger } from './utils/logger.js';
 import { testConnection as testSupabase } from './db/supabase.js';
 import { testConnection as testOpenRouter } from './services/openrouter.js';
 import { evaluateRoutes } from './routes/evaluate.js';
 import { startScheduler, stopScheduler, getSchedulerStatus } from './services/scheduler.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const fastify = Fastify({
   logger: false, // Используем свой pino logger
@@ -58,6 +64,13 @@ async function start() {
 
     logger.info('Testing OpenRouter connection...');
     await testOpenRouter();
+
+    // Регистрация статических файлов
+    await fastify.register(fastifyStatic, {
+      root: join(__dirname, '..', 'public'),
+      prefix: '/',
+    });
+    logger.info('Static files registered');
 
     // Регистрация роутов
     await fastify.register(evaluateRoutes);
