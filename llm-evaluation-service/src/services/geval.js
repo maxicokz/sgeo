@@ -144,10 +144,11 @@ export async function evaluateSingleResponse({
     throw new Error(`Failed to parse evaluation for response ${responseId}`);
   }
 
-  const avgScore = +(
-    (scores.coherence + scores.consistency + scores.fluency + scores.relevance) /
-    4
-  ).toFixed(2);
+  // Вычисляем средний балл по шкале 1-5, затем конвертируем в проценты
+  const avg1to5 =
+    (scores.coherence + scores.consistency + scores.fluency + scores.relevance) / 4;
+  // Формула: ((avg - 1) / 4) * 100 преобразует 1-5 в 0-100%
+  const avgScore = Math.round(((avg1to5 - 1) / 4) * 100);
 
   return {
     response_id: responseId,

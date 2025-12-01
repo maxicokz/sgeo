@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS evaluations (
     fluency SMALLINT NOT NULL CHECK (fluency >= 1 AND fluency <= 5),
     relevance SMALLINT NOT NULL CHECK (relevance >= 1 AND relevance <= 5),
 
-    -- Computed average score
-    avg_score DECIMAL(3,2) NOT NULL CHECK (avg_score >= 1 AND avg_score <= 5),
+    -- Computed average score (0-100% scale)
+    avg_score SMALLINT NOT NULL CHECK (avg_score >= 0 AND avg_score <= 100),
 
     -- Evaluation metadata
     evaluator_model VARCHAR(100) NOT NULL,

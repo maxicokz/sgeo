@@ -67,8 +67,8 @@ describe('G-Eval Service', () => {
     });
   });
 
-  describe('Average Score Calculation', () => {
-    it('should calculate correct average', () => {
+  describe('Average Score Calculation (0-100%)', () => {
+    it('should calculate correct percentage score', () => {
       const scores = {
         coherence: 4,
         consistency: 5,
@@ -76,28 +76,57 @@ describe('G-Eval Service', () => {
         relevance: 4,
       };
 
-      const avgScore = +(
-        (scores.coherence + scores.consistency + scores.fluency + scores.relevance) /
-        4
-      ).toFixed(2);
+      // avg 1-5 = 4, then convert to %: ((4-1)/4)*100 = 75%
+      const avg1to5 =
+        (scores.coherence + scores.consistency + scores.fluency + scores.relevance) / 4;
+      const avgScore = Math.round(((avg1to5 - 1) / 4) * 100);
 
-      assert.strictEqual(avgScore, 4);
+      assert.strictEqual(avgScore, 75);
     });
 
-    it('should handle decimal averages', () => {
+    it('should return 100% for all 5s', () => {
       const scores = {
-        coherence: 4,
+        coherence: 5,
         consistency: 5,
-        fluency: 4,
+        fluency: 5,
         relevance: 5,
       };
 
-      const avgScore = +(
-        (scores.coherence + scores.consistency + scores.fluency + scores.relevance) /
-        4
-      ).toFixed(2);
+      const avg1to5 =
+        (scores.coherence + scores.consistency + scores.fluency + scores.relevance) / 4;
+      const avgScore = Math.round(((avg1to5 - 1) / 4) * 100);
 
-      assert.strictEqual(avgScore, 4.5);
+      assert.strictEqual(avgScore, 100);
+    });
+
+    it('should return 0% for all 1s', () => {
+      const scores = {
+        coherence: 1,
+        consistency: 1,
+        fluency: 1,
+        relevance: 1,
+      };
+
+      const avg1to5 =
+        (scores.coherence + scores.consistency + scores.fluency + scores.relevance) / 4;
+      const avgScore = Math.round(((avg1to5 - 1) / 4) * 100);
+
+      assert.strictEqual(avgScore, 0);
+    });
+
+    it('should return 50% for all 3s', () => {
+      const scores = {
+        coherence: 3,
+        consistency: 3,
+        fluency: 3,
+        relevance: 3,
+      };
+
+      const avg1to5 =
+        (scores.coherence + scores.consistency + scores.fluency + scores.relevance) / 4;
+      const avgScore = Math.round(((avg1to5 - 1) / 4) * 100);
+
+      assert.strictEqual(avgScore, 50);
     });
   });
 });

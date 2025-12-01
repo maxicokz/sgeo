@@ -68,7 +68,7 @@ async function loadStatus() {
         updateScoreBar('consistency', scores.consistency);
         updateScoreBar('fluency', scores.fluency);
         updateScoreBar('relevance', scores.relevance);
-        document.getElementById('overallScore').textContent = scores.avg_score.toFixed(2);
+        document.getElementById('overallScore').textContent = Math.round(scores.avg_score);
       } else {
         document.getElementById('overallScore').textContent = '-';
       }
@@ -318,8 +318,8 @@ function showDetails(index) {
           <span>${formatScore(row.relevance)}</span>
         </div>
         <div class="modal-score-item">
-          <span><strong>Среднее</strong></span>
-          <span><strong>${row.avg_score.toFixed(2)}</strong></span>
+          <span><strong>Общий балл</strong></span>
+          <span><strong>${Math.round(row.avg_score)}%</strong></span>
         </div>
       </div>
     </div>
@@ -373,15 +373,15 @@ function formatScore(score) {
   return `<span class="score-badge ${badgeClass}">${score}</span>`;
 }
 
-// Helper: Format average score
+// Helper: Format average score (0-100%)
 function formatAvgScore(score) {
   if (score == null) return '-';
 
   let badgeClass = 'score-medium';
-  if (score >= 4) badgeClass = 'score-high';
-  else if (score <= 2) badgeClass = 'score-low';
+  if (score >= 75) badgeClass = 'score-high';
+  else if (score <= 50) badgeClass = 'score-low';
 
-  return `<span class="score-badge ${badgeClass}">${score.toFixed(2)}</span>`;
+  return `<span class="score-badge ${badgeClass}">${Math.round(score)}%</span>`;
 }
 
 // Helper: Format date

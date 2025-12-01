@@ -225,7 +225,7 @@ export async function getLastEvaluationStatus() {
       consistency: +(sum.consistency / count).toFixed(2),
       fluency: +(sum.fluency / count).toFixed(2),
       relevance: +(sum.relevance / count).toFixed(2),
-      avg_score: +(sum.avg_score / count).toFixed(2),
+      avg_score: Math.round(sum.avg_score / count), // 0-100%
     };
   }
 
