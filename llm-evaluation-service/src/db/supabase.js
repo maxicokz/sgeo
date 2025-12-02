@@ -20,7 +20,7 @@ export function getSupabaseClient() {
 
 export async function testConnection() {
   const client = getSupabaseClient();
-  const { error } = await client.from('prompts').select('id').limit(1);
+  const { error } = await client.from('ai_responses').select('id').limit(1);
 
   if (error && error.code !== 'PGRST116') {
     throw new Error(`Supabase connection failed: ${error.message}`);
