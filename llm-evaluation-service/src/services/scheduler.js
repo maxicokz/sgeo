@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import { config } from '../config.js';
-import { getPromptsWithResponses, saveEvaluations } from '../db/repository.js';
-import { evaluateMultiplePrompts } from './geval.js';
+import { getAiResponses, saveEvaluations } from '../db/repository.js';
+import { evaluateMultipleResponses } from './geval.js';
 import { createChildLogger } from '../utils/logger.js';
 
 const logger = createChildLogger({ module: 'scheduler' });
@@ -25,27 +25,26 @@ async function runScheduledEvaluation() {
   logger.info('Starting scheduled evaluation');
 
   try {
-    // Получаем все неоцененные ответы
-    const prompts = await getPromptsWithResponses({ limit: 100, unevaluatedOnly: true });
+    // Получаем все неоцененные AI ответы
+    const aiResponses = await getAiResponses({ limit: 100, unevaluatedOnly: true });
 
-    if (prompts.length === 0) {
-      logger.info('No unevaluated responses found');
+    if (aiResponses.length === 0) {
+      logger.info('No unevaluated AI responses found');
       lastRunStatus = {
         success: true,
         startedAt: startTime.toISOString(),
         completedAt: new Date().toISOString(),
         evaluated: 0,
         failed: 0,
-        message: 'No unevaluated responses found',
+        message: 'No unevaluated AI responses found',
       };
       return;
     }
 
-    const totalResponses = prompts.reduce((sum, p) => sum + p.responses.length, 0);
-    logger.info({ promptsCount: prompts.length, responsesCount: totalResponses }, 'Found data to evaluate');
+    logger.info({ responsesCount: aiResponses.length }, 'Found AI responses to evaluate');
 
     // Оцениваем
-    const { successful, failed, duration } = await evaluateMultiplePrompts(prompts);
+    const { successful, failed, duration } = await evaluateMultipleResponses(aiResponses);
 
     // Сохраняем
     if (successful.length > 0) {

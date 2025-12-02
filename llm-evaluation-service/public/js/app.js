@@ -57,7 +57,6 @@ async function loadStatus() {
       const scores = data.data.averageScores;
 
       // Update statistics
-      document.getElementById('totalPrompts').textContent = stats.totalPrompts;
       document.getElementById('totalResponses').textContent = stats.totalResponses;
       document.getElementById('totalEvaluations').textContent = stats.totalEvaluations;
       document.getElementById('pendingEvaluations').textContent = stats.pendingEvaluations;
@@ -151,12 +150,11 @@ async function loadResults() {
       }
 
       tbody.innerHTML = data.data.map((row, index) => {
-        const response = row.responses;
-        const prompt = response?.prompts;
+        const aiResponse = row.ai_responses;
 
         return `
           <tr>
-            <td>${escapeHtml(response?.model_name || '-')}</td>
+            <td>${escapeHtml(aiResponse?.model_name || '-')}</td>
             <td>${formatScore(row.coherence)}</td>
             <td>${formatScore(row.consistency)}</td>
             <td>${formatScore(row.fluency)}</td>
@@ -230,21 +228,21 @@ async function runEvaluation() {
   }
 }
 
-// Evaluate specific prompt
-async function evaluatePrompt() {
-  const promptId = document.getElementById('promptId').value.trim();
+// Evaluate specific AI response
+async function evaluateResponse() {
+  const responseId = document.getElementById('responseId').value.trim();
   const resultEl = document.getElementById('actionResult');
 
-  if (!promptId) {
+  if (!responseId) {
     resultEl.classList.remove('hidden', 'success');
     resultEl.classList.add('error');
-    resultEl.textContent = 'Введите ID промпта';
+    resultEl.textContent = 'Введите ID ответа';
     return;
   }
 
   // Validate UUID format
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(promptId)) {
+  if (!uuidRegex.test(responseId)) {
     resultEl.classList.remove('hidden', 'success');
     resultEl.classList.add('error');
     resultEl.textContent = 'Неверный формат UUID';
@@ -254,7 +252,7 @@ async function evaluatePrompt() {
   resultEl.classList.add('hidden');
 
   try {
-    const response = await fetch(`${API_BASE}/api/evaluate/${promptId}`, {
+    const response = await fetch(`${API_BASE}/api/evaluate/${responseId}`, {
       method: 'POST',
     });
     const data = await response.json();
@@ -263,8 +261,7 @@ async function evaluatePrompt() {
 
     if (data.success) {
       resultEl.classList.add('success');
-      resultEl.textContent =
-        `Оценено: ${data.evaluated} ответов для промпта. Ошибок: ${data.failed}`;
+      resultEl.textContent = 'AI ответ успешно оценён';
 
       loadStatus();
       loadResults();
@@ -286,17 +283,16 @@ function showDetails(index) {
 
   const modal = document.getElementById('modal');
   const modalBody = document.getElementById('modalBody');
-  const response = row.responses;
-  const prompt = response?.prompts;
+  const aiResponse = row.ai_responses;
 
   modalBody.innerHTML = `
     <div class="modal-section">
       <h4>Промпт</h4>
-      <p>${escapeHtml(prompt?.text || 'N/A')}</p>
+      <p>${escapeHtml(aiResponse?.prompt || 'N/A')}</p>
     </div>
     <div class="modal-section">
-      <h4>Ответ (${escapeHtml(response?.model_name || 'Unknown')})</h4>
-      <p>${escapeHtml(response?.response_text || 'N/A')}</p>
+      <h4>Ответ (${escapeHtml(aiResponse?.model_name || 'Unknown')})</h4>
+      <p>${escapeHtml(aiResponse?.response || 'N/A')}</p>
     </div>
     <div class="modal-section">
       <h4>Оценки</h4>
@@ -328,7 +324,7 @@ function showDetails(index) {
       <p>
         <strong>Модель-оценщик:</strong> ${escapeHtml(row.evaluator_model || 'N/A')}<br>
         <strong>Дата оценки:</strong> ${formatDate(row.evaluated_at)}<br>
-        <strong>ID ответа:</strong> ${escapeHtml(row.response_id || 'N/A')}
+        <strong>ID ответа:</strong> ${escapeHtml(row.ai_response_id || 'N/A')}
       </p>
     </div>
     ${row.reasoning ? `

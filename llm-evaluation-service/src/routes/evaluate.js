@@ -1,11 +1,12 @@
 import {
-  getPromptsWithResponses,
-  getPromptById,
+  getAiResponses,
+  getAiResponseById,
   saveEvaluations,
   getEvaluationResults,
   getLastEvaluationStatus,
+  getModelStats,
 } from '../db/repository.js';
-import { evaluateMultiplePrompts, evaluatePromptResponses } from '../services/geval.js';
+import { evaluateMultipleResponses, evaluateSingleResponse } from '../services/geval.js';
 import { createChildLogger } from '../utils/logger.js';
 
 const logger = createChildLogger({ module: 'routes' });
@@ -18,7 +19,7 @@ export async function evaluateRoutes(fastify) {
   // POST /api/evaluate - оценить новые ответы
   fastify.post('/api/evaluate', {
     schema: {
-      description: 'Evaluate new unevaluated responses',
+      description: 'Evaluate new unevaluated AI responses',
       querystring: {
         type: 'object',
         properties: {
@@ -44,10 +45,10 @@ export async function evaluateRoutes(fastify) {
       logger.info({ limit }, 'Starting evaluation of new responses');
 
       try {
-        // Получаем промпты с неоцененными ответами
-        const prompts = await getPromptsWithResponses({ limit, unevaluatedOnly: true });
+        // Получаем неоцененные AI ответы
+        const aiResponses = await getAiResponses({ limit, unevaluatedOnly: true });
 
-        if (prompts.length === 0) {
+        if (aiResponses.length === 0) {
           return reply.send({
             success: true,
             message: 'No unevaluated responses found',
@@ -58,7 +59,7 @@ export async function evaluateRoutes(fastify) {
         }
 
         // Оцениваем
-        const { successful, failed, duration } = await evaluateMultiplePrompts(prompts);
+        const { successful, failed, duration } = await evaluateMultipleResponses(aiResponses);
 
         // Сохраняем успешные оценки
         if (successful.length > 0) {
@@ -85,10 +86,10 @@ export async function evaluateRoutes(fastify) {
     },
   });
 
-  // POST /api/evaluate/:id - оценить конкретный промпт
+  // POST /api/evaluate/:id - оценить конкретный AI ответ
   fastify.post('/api/evaluate/:id', {
     schema: {
-      description: 'Evaluate responses for a specific prompt',
+      description: 'Evaluate a specific AI response',
       params: {
         type: 'object',
         required: ['id'],
@@ -102,9 +103,7 @@ export async function evaluateRoutes(fastify) {
           properties: {
             success: { type: 'boolean' },
             message: { type: 'string' },
-            evaluated: { type: 'integer' },
-            failed: { type: 'integer' },
-            evaluations: { type: 'array' },
+            evaluation: { type: 'object' },
           },
         },
         404: {
@@ -117,45 +116,30 @@ export async function evaluateRoutes(fastify) {
       },
     },
     handler: async (request, reply) => {
-      const { id: promptId } = request.params;
+      const { id } = request.params;
 
-      logger.info({ promptId }, 'Starting evaluation for specific prompt');
+      logger.info({ id }, 'Starting evaluation for specific AI response');
 
       try {
-        const prompt = await getPromptById(promptId);
+        const aiResponse = await getAiResponseById(id);
 
-        if (!prompt) {
+        if (!aiResponse) {
           return reply.status(404).send({
             success: false,
-            message: 'Prompt not found',
+            message: 'AI response not found',
           });
         }
 
-        if (!prompt.responses || prompt.responses.length === 0) {
-          return reply.send({
-            success: true,
-            message: 'No responses to evaluate',
-            evaluated: 0,
-            failed: 0,
-            evaluations: [],
-          });
-        }
-
-        const { successful, failed } = await evaluatePromptResponses(prompt);
-
-        if (successful.length > 0) {
-          await saveEvaluations(successful);
-        }
+        const evaluation = await evaluateSingleResponse(aiResponse);
+        await saveEvaluations([evaluation]);
 
         return reply.send({
           success: true,
-          message: `Evaluated ${successful.length} responses for prompt`,
-          evaluated: successful.length,
-          failed: failed.length,
-          evaluations: successful,
+          message: 'AI response evaluated successfully',
+          evaluation,
         });
       } catch (error) {
-        logger.error({ error: error.message, promptId }, 'Prompt evaluation failed');
+        logger.error({ error: error.message, id }, 'AI response evaluation failed');
         return reply.status(500).send({
           success: false,
           message: error.message,
@@ -181,7 +165,6 @@ export async function evaluateRoutes(fastify) {
                 statistics: {
                   type: 'object',
                   properties: {
-                    totalPrompts: { type: 'integer' },
                     totalResponses: { type: 'integer' },
                     totalEvaluations: { type: 'integer' },
                     pendingEvaluations: { type: 'integer' },
@@ -267,6 +250,29 @@ export async function evaluateRoutes(fastify) {
         });
       } catch (error) {
         logger.error({ error: error.message }, 'Failed to get results');
+        return reply.status(500).send({
+          success: false,
+          message: error.message,
+        });
+      }
+    },
+  });
+
+  // GET /api/models - статистика по моделям
+  fastify.get('/api/models', {
+    schema: {
+      description: 'Get model performance statistics',
+    },
+    handler: async (request, reply) => {
+      try {
+        const stats = await getModelStats();
+
+        return reply.send({
+          success: true,
+          data: stats,
+        });
+      } catch (error) {
+        logger.error({ error: error.message }, 'Failed to get model stats');
         return reply.status(500).send({
           success: false,
           message: error.message,

@@ -4,95 +4,64 @@ import { createChildLogger } from '../utils/logger.js';
 const logger = createChildLogger({ module: 'repository' });
 
 /**
- * Получить промпты с ответами для оценки
+ * Получить AI ответы для оценки
  * @param {Object} options
- * @param {number} options.limit - максимальное количество промптов
+ * @param {number} options.limit - максимальное количество ответов
  * @param {boolean} options.unevaluatedOnly - только неоцененные
  * @returns {Promise<Array>}
  */
-export async function getPromptsWithResponses({ limit = 10, unevaluatedOnly = true } = {}) {
+export async function getAiResponses({ limit = 10, unevaluatedOnly = true } = {}) {
   const client = getSupabaseClient();
 
-  // Получаем все промпты с ответами
-  const { data: promptsData, error: promptsError } = await client
-    .from('prompts')
-    .select(`
-      id,
-      text,
-      reference_answer,
-      created_at,
-      responses (
-        id,
-        prompt_id,
-        model_name,
-        response_text,
-        created_at
-      )
-    `)
+  // Получаем все AI ответы
+  const { data: responses, error: responsesError } = await client
+    .from('ai_responses')
+    .select('id, prompt, model_name, response, language, created_at')
     .order('created_at', { ascending: false })
     .limit(limit);
 
-  if (promptsError) {
-    logger.error({ error: promptsError }, 'Failed to fetch prompts with responses');
-    throw promptsError;
+  if (responsesError) {
+    logger.error({ error: responsesError }, 'Failed to fetch ai_responses');
+    throw responsesError;
   }
 
-  let promptsWithResponses = (promptsData || []).filter(
-    (p) => p.responses && p.responses.length > 0
-  );
+  let result = responses || [];
 
-  if (unevaluatedOnly && promptsWithResponses.length > 0) {
+  if (unevaluatedOnly && result.length > 0) {
     // Получаем ID уже оцененных ответов
-    const { data: evaluatedResponseIds } = await client
+    const { data: evaluatedIds } = await client
       .from('evaluations')
-      .select('response_id');
+      .select('ai_response_id');
 
-    const evaluatedIds = new Set((evaluatedResponseIds || []).map((e) => e.response_id));
+    const evaluatedSet = new Set((evaluatedIds || []).map((e) => e.ai_response_id));
 
-    // Фильтруем ответы, оставляя только неоцененные
-    promptsWithResponses = promptsWithResponses
-      .map((prompt) => ({
-        ...prompt,
-        responses: prompt.responses.filter((r) => !evaluatedIds.has(r.id)),
-      }))
-      .filter((p) => p.responses.length > 0);
+    // Фильтруем, оставляя только неоцененные
+    result = result.filter((r) => !evaluatedSet.has(r.id));
   }
 
-  logger.info({ count: promptsWithResponses.length }, 'Fetched prompts with responses');
-  return promptsWithResponses;
+  logger.info({ count: result.length }, 'Fetched ai_responses for evaluation');
+  return result;
 }
 
 /**
- * Получить конкретный промпт с ответами по ID
- * @param {string} promptId
+ * Получить конкретный AI ответ по ID
+ * @param {string} responseId
  * @returns {Promise<Object|null>}
  */
-export async function getPromptById(promptId) {
+export async function getAiResponseById(responseId) {
   const client = getSupabaseClient();
 
   const { data, error } = await client
-    .from('prompts')
-    .select(`
-      id,
-      text,
-      reference_answer,
-      created_at,
-      responses (
-        id,
-        prompt_id,
-        model_name,
-        response_text,
-        created_at
-      )
-    `)
-    .eq('id', promptId)
+    .from('ai_responses')
+    .select('id, prompt, model_name, response, language, created_at')
+    .eq('id', responseId)
     .single();
 
   if (error) {
     if (error.code === 'PGRST116') {
       return null;
     }
-    logger.error({ error, promptId }, 'Failed to fetch prompt');
+    logger.error({ error, responseId }, 'Failed to fetch ai_response');
     throw error;
   }
 
@@ -110,7 +79,7 @@ export async function saveEvaluations(evaluations) {
   const { data, error } = await client
     .from('evaluations')
     .upsert(evaluations, {
-      onConflict: 'response_id',
+      onConflict: 'ai_response_id',
       ignoreDuplicates: false,
     })
     .select();
@@ -138,7 +107,7 @@ export async function getEvaluationResults({ limit = 50, offset = 0 } = {}) {
     .from('evaluations')
     .select(`
       id,
-      response_id,
+      ai_response_id,
       coherence,
       consistency,
       fluency,
@@ -146,15 +115,13 @@ export async function getEvaluationResults({ limit = 50, offset = 0 } = {}) {
       avg_score,
       evaluated_at,
       evaluator_model,
-      responses!inner (
+      reasoning,
+      ai_responses!inner (
         id,
         model_name,
-        response_text,
-        prompt_id,
-        prompts!inner (
-          id,
-          text
-        )
+        prompt,
+        response,
+        language
       )
     `, { count: 'exact' })
     .order('evaluated_at', { ascending: false })
@@ -194,11 +161,7 @@ export async function getLastEvaluationStatus() {
     .select('id', { count: 'exact', head: true });
 
   const { count: totalResponses } = await client
-    .from('responses')
-    .select('id', { count: 'exact', head: true });
-
-  const { count: totalPrompts } = await client
-    .from('prompts')
+    .from('ai_responses')
     .select('id', { count: 'exact', head: true });
 
   // Средние оценки
@@ -233,11 +196,30 @@ export async function getLastEvaluationStatus() {
     lastEvaluationAt: lastEval?.evaluated_at || null,
     lastEvaluatorModel: lastEval?.evaluator_model || null,
     statistics: {
-      totalPrompts: totalPrompts || 0,
       totalResponses: totalResponses || 0,
       totalEvaluations: totalEvaluations || 0,
       pendingEvaluations: (totalResponses || 0) - (totalEvaluations || 0),
     },
     averageScores: averages,
   };
+}
+
+/**
+ * Получить статистику по моделям
+ * @returns {Promise<Array>}
+ */
+export async function getModelStats() {
+  const client = getSupabaseClient();
+
+  const { data, error } = await client
+    .from('model_performance_summary')
+    .select('*');
+
+  if (error) {
+    // View может не существовать, возвращаем пустой массив
+    logger.warn({ error }, 'model_performance_summary view not available');
+    return [];
+  }
+
+  return data || [];
 }

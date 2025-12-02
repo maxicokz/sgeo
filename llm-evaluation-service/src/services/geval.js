@@ -11,9 +11,6 @@ const EVALUATION_PROMPT_TEMPLATE = `You are an expert evaluator for Large Langua
 **Prompt/Question:**
 {prompt}
 
-**Reference Answer (if available):**
-{reference}
-
 **Response to Evaluate:**
 {response}
 
@@ -53,14 +50,12 @@ You MUST respond with ONLY a valid JSON object in this exact format, with no add
 /**
  * Создать промпт для оценки
  * @param {string} prompt - исходный промпт
- * @param {string} reference - эталонный ответ
  * @param {string} response - ответ для оценки
  * @returns {string}
  */
-function buildEvaluationPrompt(prompt, reference, response) {
+function buildEvaluationPrompt(prompt, response) {
   return EVALUATION_PROMPT_TEMPLATE
     .replace('{prompt}', prompt || 'N/A')
-    .replace('{reference}', reference || 'Not provided')
     .replace('{response}', response || 'Empty response');
 }
 
@@ -105,21 +100,14 @@ function parseEvaluationResponse(responseText) {
 }
 
 /**
- * Оценить один ответ
- * @param {Object} params
- * @param {string} params.promptText - текст промпта
- * @param {string} params.referenceAnswer - эталонный ответ
- * @param {string} params.responseText - ответ для оценки
- * @param {string} params.responseId - ID ответа
+ * Оценить один AI ответ
+ * @param {Object} aiResponse - запись из ai_responses
  * @returns {Promise<Object>}
  */
-export async function evaluateSingleResponse({
-  promptText,
-  referenceAnswer,
-  responseText,
-  responseId,
-}) {
-  const evaluationPrompt = buildEvaluationPrompt(promptText, referenceAnswer, responseText);
+export async function evaluateSingleResponse(aiResponse) {
+  const { id, prompt, response } = aiResponse;
+
+  const evaluationPrompt = buildEvaluationPrompt(prompt, response);
 
   const messages = [
     {
@@ -141,7 +129,7 @@ export async function evaluateSingleResponse({
   const scores = parseEvaluationResponse(responseContent);
 
   if (!scores) {
-    throw new Error(`Failed to parse evaluation for response ${responseId}`);
+    throw new Error(`Failed to parse evaluation for ai_response ${id}`);
   }
 
   // Вычисляем средний балл по шкале 1-5, затем конвертируем в проценты
@@ -151,7 +139,7 @@ export async function evaluateSingleResponse({
   const avgScore = Math.round(((avg1to5 - 1) / 4) * 100);
 
   return {
-    response_id: responseId,
+    ai_response_id: id,
     coherence: scores.coherence,
     consistency: scores.consistency,
     fluency: scores.fluency,
@@ -164,41 +152,36 @@ export async function evaluateSingleResponse({
 }
 
 /**
- * Оценить набор ответов для одного промпта
- * @param {Object} promptData - данные промпта с ответами
- * @returns {Promise<Array>}
+ * Оценить несколько AI ответов
+ * @param {Array} aiResponses - массив записей из ai_responses
+ * @returns {Promise<Object>}
  */
-export async function evaluatePromptResponses(promptData) {
-  const { id: promptId, text: promptText, reference_answer, responses } = promptData;
+export async function evaluateMultipleResponses(aiResponses) {
+  const startTime = Date.now();
 
-  logger.info({ promptId, responsesCount: responses.length }, 'Evaluating prompt responses');
+  logger.info({ count: aiResponses.length }, 'Starting batch evaluation');
 
   const limit = pLimit(config.rateLimit.maxConcurrent);
 
-  const evaluationPromises = responses.map((response) =>
+  const evaluationPromises = aiResponses.map((aiResponse) =>
     limit(async () => {
       try {
-        const result = await evaluateSingleResponse({
-          promptText,
-          referenceAnswer: reference_answer,
-          responseText: response.response_text,
-          responseId: response.id,
-        });
+        const result = await evaluateSingleResponse(aiResponse);
 
         logger.debug(
-          { responseId: response.id, avgScore: result.avg_score },
-          'Response evaluated'
+          { aiResponseId: aiResponse.id, avgScore: result.avg_score },
+          'AI response evaluated'
         );
 
         return result;
       } catch (error) {
         logger.error(
-          { error: error.message, responseId: response.id },
-          'Failed to evaluate response'
+          { error: error.message, aiResponseId: aiResponse.id },
+          'Failed to evaluate ai_response'
         );
 
         return {
-          response_id: response.id,
+          ai_response_id: aiResponse.id,
           error: error.message,
         };
       }
@@ -210,47 +193,20 @@ export async function evaluatePromptResponses(promptData) {
   const successful = results.filter((r) => !r.error);
   const failed = results.filter((r) => r.error);
 
-  logger.info(
-    { promptId, successful: successful.length, failed: failed.length },
-    'Prompt evaluation completed'
-  );
-
-  return { successful, failed };
-}
-
-/**
- * Оценить несколько промптов с их ответами
- * @param {Array} prompts - массив промптов с ответами
- * @returns {Promise<Object>}
- */
-export async function evaluateMultiplePrompts(prompts) {
-  const startTime = Date.now();
-
-  logger.info({ promptsCount: prompts.length }, 'Starting batch evaluation');
-
-  const allSuccessful = [];
-  const allFailed = [];
-
-  for (const prompt of prompts) {
-    const { successful, failed } = await evaluatePromptResponses(prompt);
-    allSuccessful.push(...successful);
-    allFailed.push(...failed);
-  }
-
   const duration = Date.now() - startTime;
 
   logger.info(
     {
       duration,
-      totalSuccessful: allSuccessful.length,
-      totalFailed: allFailed.length,
+      totalSuccessful: successful.length,
+      totalFailed: failed.length,
     },
     'Batch evaluation completed'
   );
 
   return {
-    successful: allSuccessful,
-    failed: allFailed,
+    successful,
+    failed,
     duration,
   };
 }

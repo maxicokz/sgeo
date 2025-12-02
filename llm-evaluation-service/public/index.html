@@ -16,17 +16,10 @@
     <!-- Status Cards -->
     <section class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon">📝</div>
-        <div class="stat-content">
-          <span class="stat-value" id="totalPrompts">-</span>
-          <span class="stat-label">Промптов</span>
-        </div>
-      </div>
-      <div class="stat-card">
         <div class="stat-icon">💬</div>
         <div class="stat-content">
           <span class="stat-value" id="totalResponses">-</span>
-          <span class="stat-label">Ответов</span>
+          <span class="stat-label">AI Ответов</span>
         </div>
       </div>
       <div class="stat-card">
@@ -105,10 +98,10 @@
           </button>
         </div>
         <div class="action-group">
-          <label for="promptId">ID промпта (UUID):</label>
-          <input type="text" id="promptId" placeholder="550e8400-e29b-41d4-a716-446655440000">
-          <button class="btn btn-secondary" onclick="evaluatePrompt()">
-            Оценить промпт
+          <label for="responseId">ID ответа (UUID):</label>
+          <input type="text" id="responseId" placeholder="550e8400-e29b-41d4-a716-446655440000">
+          <button class="btn btn-secondary" onclick="evaluateResponse()">
+            Оценить ответ
           </button>
         </div>
       </div>
