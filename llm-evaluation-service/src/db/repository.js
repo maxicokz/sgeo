@@ -13,6 +13,8 @@ const logger = createChildLogger({ module: 'repository' });
 export async function getAiResponses({ limit = 10, unevaluatedOnly = true } = {}) {
   const client = getSupabaseClient();
 
+  logger.info({ limit, unevaluatedOnly }, 'Fetching ai_responses...');
+
   // Получаем все AI ответы
   const { data: responses, error: responsesError } = await client
     .from('ai_responses')
@@ -25,21 +27,29 @@ export async function getAiResponses({ limit = 10, unevaluatedOnly = true } = {}
     throw responsesError;
   }
 
+  logger.info({ totalFetched: responses?.length || 0 }, 'Fetched ai_responses from DB');
+
   let result = responses || [];
 
   if (unevaluatedOnly && result.length > 0) {
     // Получаем ID уже оцененных ответов
-    const { data: evaluatedIds } = await client
+    const { data: evaluatedIds, error: evalError } = await client
       .from('evaluations')
       .select('ai_response_id');
 
-    const evaluatedSet = new Set((evaluatedIds || []).map((e) => e.ai_response_id));
+    if (evalError) {
+      logger.warn({ error: evalError }, 'Failed to fetch evaluations - table may not exist');
+      // Продолжаем без фильтрации если таблица не существует
+    } else {
+      const evaluatedSet = new Set((evaluatedIds || []).map((e) => e.ai_response_id));
+      logger.info({ evaluatedCount: evaluatedSet.size }, 'Found existing evaluations');
 
-    // Фильтруем, оставляя только неоцененные
-    result = result.filter((r) => !evaluatedSet.has(r.id));
+      // Фильтруем, оставляя только неоцененные
+      result = result.filter((r) => !evaluatedSet.has(r.id));
+    }
   }
 
-  logger.info({ count: result.length }, 'Fetched ai_responses for evaluation');
+  logger.info({ count: result.length }, 'Returning ai_responses for evaluation');
   return result;
 }
 
