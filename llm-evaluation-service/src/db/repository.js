@@ -343,3 +343,52 @@ export async function getReferencesByTopic(topic) {
 
   return data || [];
 }
+
+/**
+ * Удалить одну оценку по ID
+ * @param {string} evaluationId
+ * @returns {Promise<boolean>}
+ */
+export async function deleteEvaluation(evaluationId) {
+  const client = getSupabaseClient();
+
+  const { error } = await client
+    .from('evaluations')
+    .delete()
+    .eq('id', evaluationId);
+
+  if (error) {
+    logger.error({ error, evaluationId }, 'Failed to delete evaluation');
+    throw error;
+  }
+
+  logger.info({ evaluationId }, 'Deleted evaluation');
+  return true;
+}
+
+/**
+ * Удалить все оценки
+ * @returns {Promise<number>} количество удалённых записей
+ */
+export async function deleteAllEvaluations() {
+  const client = getSupabaseClient();
+
+  // Сначала считаем сколько записей
+  const { count } = await client
+    .from('evaluations')
+    .select('id', { count: 'exact', head: true });
+
+  // Удаляем все
+  const { error } = await client
+    .from('evaluations')
+    .delete()
+    .neq('id', '00000000-0000-0000-0000-000000000000'); // Trick to delete all
+
+  if (error) {
+    logger.error({ error }, 'Failed to delete all evaluations');
+    throw error;
+  }
+
+  logger.info({ count }, 'Deleted all evaluations');
+  return count || 0;
+}

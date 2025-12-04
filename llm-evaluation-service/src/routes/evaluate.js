@@ -6,6 +6,8 @@ import {
   getLastEvaluationStatus,
   getModelStats,
   findReferenceAnswer,
+  deleteEvaluation,
+  deleteAllEvaluations,
 } from '../db/repository.js';
 import { evaluateSingleResponse } from '../services/geval.js';
 import { createChildLogger } from '../utils/logger.js';
@@ -343,6 +345,62 @@ export async function evaluateRoutes(fastify) {
         });
       } catch (error) {
         logger.error({ error: error.message }, 'Failed to get model stats');
+        return reply.status(500).send({
+          success: false,
+          message: error.message,
+        });
+      }
+    },
+  });
+
+  // DELETE /api/evaluations/:id - удалить одну оценку
+  fastify.delete('/api/evaluations/:id', {
+    schema: {
+      description: 'Delete a single evaluation',
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+        },
+      },
+    },
+    handler: async (request, reply) => {
+      const { id } = request.params;
+
+      try {
+        await deleteEvaluation(id);
+
+        return reply.send({
+          success: true,
+          message: 'Evaluation deleted',
+        });
+      } catch (error) {
+        logger.error({ error: error.message, id }, 'Failed to delete evaluation');
+        return reply.status(500).send({
+          success: false,
+          message: error.message,
+        });
+      }
+    },
+  });
+
+  // DELETE /api/evaluations - удалить все оценки
+  fastify.delete('/api/evaluations', {
+    schema: {
+      description: 'Delete all evaluations',
+    },
+    handler: async (request, reply) => {
+      try {
+        const count = await deleteAllEvaluations();
+
+        return reply.send({
+          success: true,
+          message: `Deleted ${count} evaluations`,
+          count,
+        });
+      } catch (error) {
+        logger.error({ error: error.message }, 'Failed to delete all evaluations');
         return reply.status(500).send({
           success: false,
           message: error.message,

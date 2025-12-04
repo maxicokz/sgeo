@@ -269,6 +269,20 @@ header h1 {
   font-size: 0.8rem;
 }
 
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn-danger:disabled {
+  background: var(--secondary);
+  cursor: not-allowed;
+}
+
 /* Action Result */
 .action-result {
   margin-top: 1rem;
@@ -321,9 +335,14 @@ header h1 {
 /* Table */
 .table-controls {
   display: flex;
-  justify-content: space-between;
+  gap: 0.5rem;
   align-items: center;
+  flex-wrap: wrap;
   margin-bottom: 1rem;
+}
+
+.table-controls .pagination-info {
+  margin-left: auto;
 }
 
 .pagination-info {
@@ -413,6 +432,34 @@ tr:hover {
   background: var(--primary);
   border-color: var(--primary);
   color: white;
+}
+
+.delete-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 0.25rem;
+}
+
+.delete-btn:hover {
+  background: var(--danger);
+  color: white;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.prompt-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Pagination */

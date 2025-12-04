@@ -119,7 +119,7 @@ async function loadScheduler() {
 // Load evaluation results
 async function loadResults() {
   const tbody = document.getElementById('resultsBody');
-  tbody.innerHTML = '<tr><td colspan="8" class="loading">Загрузка...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" class="loading">Загрузка...</td></tr>';
 
   try {
     const offset = currentPage * pageSize;
@@ -145,25 +145,30 @@ async function loadResults() {
 
       if (data.data.length === 0) {
         tbody.innerHTML =
-          '<tr><td colspan="8" class="no-data">Нет данных</td></tr>';
+          '<tr><td colspan="9" class="no-data">Нет данных</td></tr>';
         return;
       }
 
       tbody.innerHTML = data.data.map((row, index) => {
         const aiResponse = row.ai_responses;
+        const promptExcerpt = truncateText(aiResponse?.prompt, 50);
 
         return `
           <tr>
             <td>${escapeHtml(aiResponse?.model_name || '-')}</td>
+            <td class="prompt-cell" title="${escapeHtml(aiResponse?.prompt || '')}">${escapeHtml(promptExcerpt)}</td>
             <td>${formatScore(row.coherence)}</td>
             <td>${formatScore(row.consistency)}</td>
             <td>${formatScore(row.fluency)}</td>
             <td>${formatScore(row.relevance)}</td>
             <td>${formatAvgScore(row.avg_score)}</td>
             <td>${formatDate(row.evaluated_at)}</td>
-            <td>
+            <td class="actions-cell">
               <button class="details-btn" onclick="showDetails(${index})">
-                Подробнее
+                Детали
+              </button>
+              <button class="delete-btn" onclick="deleteEvaluation('${row.id}')">
+                Удалить
               </button>
             </td>
           </tr>
@@ -173,7 +178,7 @@ async function loadResults() {
   } catch (error) {
     console.error('Failed to load results:', error);
     tbody.innerHTML =
-      '<tr><td colspan="8" class="no-data">Ошибка загрузки</td></tr>';
+      '<tr><td colspan="9" class="no-data">Ошибка загрузки</td></tr>';
   }
 }
 
@@ -400,4 +405,67 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+// Helper: Truncate text
+function truncateText(text, maxLength) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+}
+
+// Delete single evaluation
+async function deleteEvaluation(id) {
+  if (!confirm('Удалить эту оценку?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/evaluations/${id}`, {
+      method: 'DELETE',
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      loadStatus();
+      loadResults();
+    } else {
+      alert('Ошибка: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Failed to delete evaluation:', error);
+    alert('Ошибка удаления: ' + error.message);
+  }
+}
+
+// Delete all evaluations
+async function deleteAllEvaluations() {
+  if (!confirm('Удалить ВСЕ оценки? Это действие необратимо!')) {
+    return;
+  }
+
+  const btn = document.getElementById('deleteAllBtn');
+  btn.disabled = true;
+  btn.textContent = 'Удаление...';
+
+  try {
+    const response = await fetch(`${API_BASE}/api/evaluations`, {
+      method: 'DELETE',
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      alert(`Удалено ${data.count} оценок`);
+      loadStatus();
+      loadResults();
+    } else {
+      alert('Ошибка: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Failed to delete all evaluations:', error);
+    alert('Ошибка удаления: ' + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Удалить все';
+  }
 }
