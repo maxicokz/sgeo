@@ -441,11 +441,10 @@ async function deleteEvaluation(id) {
 // Export to CSV
 async function exportCSV() {
   try {
-    // Fetch all results
-    const response = await fetch(`${API_BASE}/api/results?limit=1000&offset=0`);
-    const data = await response.json();
+    // Fetch all results with pagination
+    const allData = await fetchAllResults();
 
-    if (!data.success || data.data.length === 0) {
+    if (allData.length === 0) {
       alert('Нет данных для экспорта');
       return;
     }
@@ -454,7 +453,7 @@ async function exportCSV() {
     const headers = ['Модель', 'Промпт', 'Ответ', 'Coherence', 'Consistency', 'Fluency', 'Relevance', 'Avg Score', 'Дата оценки', 'Модель-оценщик', 'Обоснование'];
 
     // CSV rows
-    const rows = data.data.map(row => {
+    const rows = allData.map(row => {
       const ai = row.ai_responses || {};
       return [
         escapeCsvField(ai.model_name || ''),
@@ -482,15 +481,14 @@ async function exportCSV() {
 // Export to JSON
 async function exportJSON() {
   try {
-    const response = await fetch(`${API_BASE}/api/results?limit=1000&offset=0`);
-    const data = await response.json();
+    const allData = await fetchAllResults();
 
-    if (!data.success || data.data.length === 0) {
+    if (allData.length === 0) {
       alert('Нет данных для экспорта');
       return;
     }
 
-    const exportData = data.data.map(row => ({
+    const exportData = allData.map(row => ({
       model: row.ai_responses?.model_name,
       prompt: row.ai_responses?.prompt,
       response: row.ai_responses?.response,
@@ -512,6 +510,29 @@ async function exportJSON() {
     console.error('Export JSON failed:', error);
     alert('Ошибка экспорта: ' + error.message);
   }
+}
+
+// Helper: Fetch all results with pagination
+async function fetchAllResults() {
+  const allData = [];
+  const batchSize = 200;
+  let offset = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const response = await fetch(`${API_BASE}/api/results?limit=${batchSize}&offset=${offset}`);
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to fetch results');
+    }
+
+    allData.push(...data.data);
+    offset += batchSize;
+    hasMore = data.data.length === batchSize && offset < data.pagination.total;
+  }
+
+  return allData;
 }
 
 // Helper: Escape CSV field
