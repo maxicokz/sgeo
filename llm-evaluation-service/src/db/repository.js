@@ -279,6 +279,8 @@ export async function findReferenceAnswer(prompt, language = null) {
   }
 
   if (allRefs && allRefs.length > 0) {
+    logger.debug({ refCount: allRefs.length }, 'Checking partial matches against reference patterns');
+
     // Ищем эталон, чей prompt_pattern содержится в промпте (case-insensitive)
     const lowerPrompt = trimmedPrompt.toLowerCase();
     const match = allRefs.find((ref) => {

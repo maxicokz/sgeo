@@ -350,4 +350,38 @@ export async function evaluateRoutes(fastify) {
       }
     },
   });
+
+  // GET /api/references - просмотр эталонных ответов (для отладки)
+  fastify.get('/api/references', {
+    schema: {
+      description: 'Get all reference answers for debugging',
+    },
+    handler: async (request, reply) => {
+      try {
+        const { getSupabaseClient } = await import('../db/supabase.js');
+        const client = getSupabaseClient();
+
+        const { data, error } = await client
+          .from('reference_answers')
+          .select('id, prompt_pattern, topic, language, is_active')
+          .order('topic', { ascending: true });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return reply.send({
+          success: true,
+          count: data?.length || 0,
+          data: data || [],
+        });
+      } catch (error) {
+        logger.error({ error: error.message }, 'Failed to get references');
+        return reply.status(500).send({
+          success: false,
+          message: error.message,
+        });
+      }
+    },
+  });
 }
