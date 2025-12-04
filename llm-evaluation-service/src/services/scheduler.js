@@ -1,7 +1,8 @@
 import cron from 'node-cron';
+import pLimit from 'p-limit';
 import { config } from '../config.js';
-import { getAiResponses, saveEvaluations } from '../db/repository.js';
-import { evaluateMultipleResponses } from './geval.js';
+import { getAiResponses, saveEvaluations, findReferenceAnswer } from '../db/repository.js';
+import { evaluateSingleResponse } from './geval.js';
 import { createChildLogger } from '../utils/logger.js';
 
 const logger = createChildLogger({ module: 'scheduler' });
@@ -36,6 +37,7 @@ async function runScheduledEvaluation() {
         completedAt: new Date().toISOString(),
         evaluated: 0,
         failed: 0,
+        withReference: 0,
         message: 'No unevaluated AI responses found',
       };
       return;
@@ -43,8 +45,42 @@ async function runScheduledEvaluation() {
 
     logger.info({ responsesCount: aiResponses.length }, 'Found AI responses to evaluate');
 
-    // Оцениваем
-    const { successful, failed, duration } = await evaluateMultipleResponses(aiResponses);
+    const concurrencyLimit = pLimit(config.rateLimit?.maxConcurrent || 3);
+
+    // Оцениваем каждый ответ с поиском эталона
+    const evaluationPromises = aiResponses.map((aiResponse) =>
+      concurrencyLimit(async () => {
+        try {
+          // Ищем эталонный ответ по prompt
+          const reference = await findReferenceAnswer(aiResponse.prompt, aiResponse.language);
+
+          // Оцениваем с эталоном или без
+          const evaluation = await evaluateSingleResponse(
+            aiResponse,
+            reference?.reference_full || null
+          );
+
+          return {
+            ...evaluation,
+            reference_id: reference?.id || null,
+            has_reference: !!reference,
+          };
+        } catch (error) {
+          logger.error(
+            { error: error.message, aiResponseId: aiResponse.id },
+            'Failed to evaluate AI response'
+          );
+          return { ai_response_id: aiResponse.id, error: error.message };
+        }
+      })
+    );
+
+    const results = await Promise.all(evaluationPromises);
+    const successful = results.filter((r) => !r.error);
+    const failed = results.filter((r) => r.error);
+    const withReference = successful.filter((r) => r.has_reference).length;
+
+    const duration = Date.now() - startTime.getTime();
 
     // Сохраняем
     if (successful.length > 0) {
@@ -57,8 +93,9 @@ async function runScheduledEvaluation() {
       completedAt: new Date().toISOString(),
       evaluated: successful.length,
       failed: failed.length,
+      withReference,
       duration,
-      message: `Successfully evaluated ${successful.length} responses`,
+      message: `Successfully evaluated ${successful.length} responses (${withReference} with reference)`,
     };
 
     logger.info(lastRunStatus, 'Scheduled evaluation completed');
@@ -71,6 +108,7 @@ async function runScheduledEvaluation() {
       completedAt: new Date().toISOString(),
       evaluated: 0,
       failed: 0,
+      withReference: 0,
       error: error.message,
       message: `Evaluation failed: ${error.message}`,
     };
