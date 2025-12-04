@@ -5,9 +5,12 @@ import {
   getEvaluationResults,
   getLastEvaluationStatus,
   getModelStats,
+  findReferenceAnswer,
 } from '../db/repository.js';
-import { evaluateMultipleResponses, evaluateSingleResponse } from '../services/geval.js';
+import { evaluateSingleResponse } from '../services/geval.js';
 import { createChildLogger } from '../utils/logger.js';
+import pLimit from 'p-limit';
+import { config } from '../config.js';
 
 const logger = createChildLogger({ module: 'routes' });
 
@@ -55,22 +58,64 @@ export async function evaluateRoutes(fastify) {
             evaluated: 0,
             failed: 0,
             duration: 0,
+            withReference: 0,
           });
         }
 
-        // Оцениваем
-        const { successful, failed, duration } = await evaluateMultipleResponses(aiResponses);
+        const startTime = Date.now();
+        const concurrencyLimit = pLimit(config.rateLimit?.maxConcurrent || 3);
+
+        // Оцениваем каждый ответ с поиском эталона
+        const evaluationPromises = aiResponses.map((aiResponse) =>
+          concurrencyLimit(async () => {
+            try {
+              // Ищем эталонный ответ по prompt
+              const reference = await findReferenceAnswer(aiResponse.prompt, aiResponse.language);
+
+              // Оцениваем с эталоном или без
+              const evaluation = await evaluateSingleResponse(
+                aiResponse,
+                reference?.reference_full || null
+              );
+
+              return {
+                ...evaluation,
+                reference_id: reference?.id || null,
+                has_reference: !!reference,
+              };
+            } catch (error) {
+              logger.error(
+                { error: error.message, aiResponseId: aiResponse.id },
+                'Failed to evaluate AI response'
+              );
+              return { ai_response_id: aiResponse.id, error: error.message };
+            }
+          })
+        );
+
+        const results = await Promise.all(evaluationPromises);
+        const successful = results.filter((r) => !r.error);
+        const failed = results.filter((r) => r.error);
+        const withReference = successful.filter((r) => r.has_reference).length;
+
+        const duration = Date.now() - startTime;
 
         // Сохраняем успешные оценки
         if (successful.length > 0) {
           await saveEvaluations(successful);
         }
 
+        logger.info(
+          { evaluated: successful.length, failed: failed.length, withReference, duration },
+          'Batch evaluation completed'
+        );
+
         return reply.send({
           success: true,
-          message: `Evaluated ${successful.length} responses`,
+          message: `Evaluated ${successful.length} responses (${withReference} with reference)`,
           evaluated: successful.length,
           failed: failed.length,
+          withReference,
           duration,
         });
       } catch (error) {
@@ -130,13 +175,38 @@ export async function evaluateRoutes(fastify) {
           });
         }
 
-        const evaluation = await evaluateSingleResponse(aiResponse);
-        await saveEvaluations([evaluation]);
+        // Ищем эталонный ответ по prompt
+        const reference = await findReferenceAnswer(aiResponse.prompt, aiResponse.language);
+
+        if (reference) {
+          logger.info(
+            { referenceId: reference.id, topic: reference.topic },
+            'Found reference answer for evaluation'
+          );
+        }
+
+        // Оцениваем с эталоном или без
+        const evaluation = await evaluateSingleResponse(
+          aiResponse,
+          reference?.reference_full || null
+        );
+
+        const evaluationWithRef = {
+          ...evaluation,
+          reference_id: reference?.id || null,
+          has_reference: !!reference,
+        };
+
+        await saveEvaluations([evaluationWithRef]);
 
         return reply.send({
           success: true,
-          message: 'AI response evaluated successfully',
-          evaluation,
+          message: reference
+            ? 'AI response evaluated with reference answer'
+            : 'AI response evaluated without reference',
+          hasReference: !!reference,
+          referenceTopic: reference?.topic || null,
+          evaluation: evaluationWithRef,
         });
       } catch (error) {
         logger.error({ error: error.message, id }, 'AI response evaluation failed');

@@ -233,3 +233,83 @@ export async function getModelStats() {
 
   return data || [];
 }
+
+/**
+ * Найти эталонный ответ по prompt
+ * @param {string} prompt - текст промпта
+ * @param {string} [language] - язык (ru, kz, en)
+ * @returns {Promise<Object|null>}
+ */
+export async function findReferenceAnswer(prompt, language = null) {
+  const client = getSupabaseClient();
+
+  if (!prompt) return null;
+
+  const trimmedPrompt = prompt.trim();
+
+  logger.debug({ prompt: trimmedPrompt.substring(0, 100), language }, 'Searching for reference answer');
+
+  // 1. Сначала точный поиск по prompt_pattern
+  const { data: exact, error: exactError } = await client
+    .from('reference_answers')
+    .select('id, reference_short, reference_full, topic, language')
+    .eq('is_active', true)
+    .ilike('prompt_pattern', trimmedPrompt)
+    .limit(1)
+    .maybeSingle();
+
+  if (exactError) {
+    logger.warn({ error: exactError }, 'Error in exact reference search');
+  }
+
+  if (exact) {
+    logger.info({ referenceId: exact.id, topic: exact.topic }, 'Found exact reference match');
+    return exact;
+  }
+
+  // 2. Если не нашли — fuzzy поиск через RPC функцию
+  try {
+    const { data: fuzzy, error: fuzzyError } = await client
+      .rpc('find_reference_fuzzy', {
+        search_text: trimmedPrompt,
+        search_lang: language,
+      });
+
+    if (fuzzyError) {
+      logger.warn({ error: fuzzyError }, 'Error in fuzzy reference search');
+      return null;
+    }
+
+    if (fuzzy && fuzzy.length > 0) {
+      logger.info({ referenceId: fuzzy[0].id, topic: fuzzy[0].topic }, 'Found fuzzy reference match');
+      return fuzzy[0];
+    }
+  } catch (err) {
+    logger.warn({ error: err.message }, 'Fuzzy search RPC not available');
+  }
+
+  logger.debug('No reference answer found');
+  return null;
+}
+
+/**
+ * Получить все эталоны по теме
+ * @param {string} topic
+ * @returns {Promise<Array>}
+ */
+export async function getReferencesByTopic(topic) {
+  const client = getSupabaseClient();
+
+  const { data, error } = await client
+    .from('reference_answers')
+    .select('*')
+    .eq('topic', topic)
+    .eq('is_active', true);
+
+  if (error) {
+    logger.error({ error, topic }, 'Failed to fetch references by topic');
+    throw error;
+  }
+
+  return data || [];
+}
