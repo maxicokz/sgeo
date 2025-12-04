@@ -438,6 +438,105 @@ async function deleteEvaluation(id) {
   }
 }
 
+// Export to CSV
+async function exportCSV() {
+  try {
+    // Fetch all results
+    const response = await fetch(`${API_BASE}/api/results?limit=1000&offset=0`);
+    const data = await response.json();
+
+    if (!data.success || data.data.length === 0) {
+      alert('Нет данных для экспорта');
+      return;
+    }
+
+    // CSV header
+    const headers = ['Модель', 'Промпт', 'Ответ', 'Coherence', 'Consistency', 'Fluency', 'Relevance', 'Avg Score', 'Дата оценки', 'Модель-оценщик', 'Обоснование'];
+
+    // CSV rows
+    const rows = data.data.map(row => {
+      const ai = row.ai_responses || {};
+      return [
+        escapeCsvField(ai.model_name || ''),
+        escapeCsvField(ai.prompt || ''),
+        escapeCsvField(ai.response || ''),
+        row.coherence || '',
+        row.consistency || '',
+        row.fluency || '',
+        row.relevance || '',
+        row.avg_score || '',
+        row.evaluated_at || '',
+        escapeCsvField(row.evaluator_model || ''),
+        escapeCsvField(row.reasoning || '')
+      ].join(',');
+    });
+
+    const csv = [headers.join(','), ...rows].join('\n');
+    downloadFile(csv, 'evaluations.csv', 'text/csv');
+  } catch (error) {
+    console.error('Export CSV failed:', error);
+    alert('Ошибка экспорта: ' + error.message);
+  }
+}
+
+// Export to JSON
+async function exportJSON() {
+  try {
+    const response = await fetch(`${API_BASE}/api/results?limit=1000&offset=0`);
+    const data = await response.json();
+
+    if (!data.success || data.data.length === 0) {
+      alert('Нет данных для экспорта');
+      return;
+    }
+
+    const exportData = data.data.map(row => ({
+      model: row.ai_responses?.model_name,
+      prompt: row.ai_responses?.prompt,
+      response: row.ai_responses?.response,
+      scores: {
+        coherence: row.coherence,
+        consistency: row.consistency,
+        fluency: row.fluency,
+        relevance: row.relevance,
+        avg_score: row.avg_score
+      },
+      evaluated_at: row.evaluated_at,
+      evaluator_model: row.evaluator_model,
+      reasoning: row.reasoning
+    }));
+
+    const json = JSON.stringify(exportData, null, 2);
+    downloadFile(json, 'evaluations.json', 'application/json');
+  } catch (error) {
+    console.error('Export JSON failed:', error);
+    alert('Ошибка экспорта: ' + error.message);
+  }
+}
+
+// Helper: Escape CSV field
+function escapeCsvField(field) {
+  if (!field) return '';
+  const str = String(field);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+// Helper: Download file
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 // Delete all evaluations
 async function deleteAllEvaluations() {
   if (!confirm('Удалить ВСЕ оценки? Это действие необратимо!')) {
