@@ -267,7 +267,38 @@ export async function findReferenceAnswer(prompt, language = null) {
     return exact;
   }
 
-  // 2. Если не нашли — fuzzy поиск через RPC функцию
+  // 2. Частичный поиск — проверяем содержит ли prompt текст из prompt_pattern
+  // Получаем все активные эталоны и ищем совпадение
+  const { data: allRefs, error: allError } = await client
+    .from('reference_answers')
+    .select('id, reference_short, reference_full, topic, language, prompt_pattern')
+    .eq('is_active', true);
+
+  if (allError) {
+    logger.warn({ error: allError }, 'Error fetching reference answers');
+  }
+
+  if (allRefs && allRefs.length > 0) {
+    // Ищем эталон, чей prompt_pattern содержится в промпте (case-insensitive)
+    const lowerPrompt = trimmedPrompt.toLowerCase();
+    const match = allRefs.find((ref) => {
+      const pattern = ref.prompt_pattern?.toLowerCase();
+      return pattern && lowerPrompt.includes(pattern);
+    });
+
+    if (match) {
+      logger.info({ referenceId: match.id, topic: match.topic }, 'Found partial reference match');
+      return {
+        id: match.id,
+        reference_short: match.reference_short,
+        reference_full: match.reference_full,
+        topic: match.topic,
+        language: match.language,
+      };
+    }
+  }
+
+  // 3. Fuzzy поиск через RPC функцию (если настроена)
   try {
     const { data: fuzzy, error: fuzzyError } = await client
       .rpc('find_reference_fuzzy', {
@@ -276,16 +307,13 @@ export async function findReferenceAnswer(prompt, language = null) {
       });
 
     if (fuzzyError) {
-      logger.warn({ error: fuzzyError }, 'Error in fuzzy reference search');
-      return null;
-    }
-
-    if (fuzzy && fuzzy.length > 0) {
+      logger.debug({ error: fuzzyError }, 'Fuzzy search RPC not available or failed');
+    } else if (fuzzy && fuzzy.length > 0) {
       logger.info({ referenceId: fuzzy[0].id, topic: fuzzy[0].topic }, 'Found fuzzy reference match');
       return fuzzy[0];
     }
   } catch (err) {
-    logger.warn({ error: err.message }, 'Fuzzy search RPC not available');
+    logger.debug({ error: err.message }, 'Fuzzy search RPC not available');
   }
 
   logger.debug('No reference answer found');
