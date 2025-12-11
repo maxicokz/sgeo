@@ -53,14 +53,14 @@ IMPORTANT: Be very critical! Most responses have flaws. A score of 5 should be R
    - "negative": Critical, pessimistic, discouraging tone
 
 ## Response Format
-Respond with ONLY valid JSON:
+Respond with ONLY valid JSON (keep reasoning under 150 words):
 {
   "coherence": <1-5>,
   "consistency": <1-5>,
   "fluency": <1-5>,
   "relevance": <1-5>,
   "sentiment": "<positive|neutral|negative>",
-  "reasoning": "<explain WHY you gave these scores, be specific about flaws>"
+  "reasoning": "<brief explanation, max 2-3 sentences>"
 }`;
 
 // Template with reference answer for stricter evaluation
@@ -114,14 +114,14 @@ IMPORTANT: Be very critical! Compare the response to the reference. A score of 5
    - "negative": Critical, pessimistic, discouraging tone
 
 ## Response Format
-Respond with ONLY valid JSON:
+Respond with ONLY valid JSON (keep reasoning under 150 words):
 {
   "coherence": <1-5>,
   "consistency": <1-5>,
   "fluency": <1-5>,
   "relevance": <1-5>,
   "sentiment": "<positive|neutral|negative>",
-  "reasoning": "<explain scores, specifically compare to reference>"
+  "reasoning": "<brief explanation, max 2-3 sentences>"
 }`;
 
 /**
@@ -219,7 +219,7 @@ export async function evaluateSingleResponse(aiResponse, referenceAnswer = null)
 
   const completion = await sendChatCompletion(messages, {
     temperature: 0.1,
-    maxTokens: 512,
+    maxTokens: 1024,
   });
 
   const responseContent = extractResponseText(completion);
