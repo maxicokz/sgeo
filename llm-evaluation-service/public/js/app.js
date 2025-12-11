@@ -198,6 +198,7 @@ function changePage(delta) {
 async function runEvaluation() {
   const btn = document.getElementById('evaluateBtn');
   const limit = document.getElementById('evaluateLimit').value || 10;
+  const strictMode = document.getElementById('strictMode').checked;
   const resultEl = document.getElementById('actionResult');
 
   btn.disabled = true;
@@ -205,7 +206,7 @@ async function runEvaluation() {
   resultEl.classList.add('hidden');
 
   try {
-    const response = await fetch(`${API_BASE}/api/evaluate?limit=${limit}`, {
+    const response = await fetch(`${API_BASE}/api/evaluate?limit=${limit}&strictMode=${strictMode}`, {
       method: 'POST',
     });
     const data = await response.json();

@@ -5,8 +5,8 @@ import { createChildLogger } from '../utils/logger.js';
 
 const logger = createChildLogger({ module: 'geval' });
 
-// Template without reference answer
-const EVALUATION_PROMPT_TEMPLATE = `You are a STRICT and CRITICAL evaluator for Large Language Model responses. Your task is to evaluate a response using the G-Eval methodology.
+// STRICT Template without reference answer
+const STRICT_EVALUATION_PROMPT = `You are a STRICT and CRITICAL evaluator for Large Language Model responses. Your task is to evaluate a response using the G-Eval methodology.
 
 IMPORTANT: Be very critical! Most responses have flaws. A score of 5 should be RARE and only for truly exceptional responses. Average responses should score 2-3.
 
@@ -63,8 +63,66 @@ Respond with ONLY valid JSON (keep reasoning under 150 words):
   "reasoning": "<brief explanation, max 2-3 sentences>"
 }`;
 
-// Template with reference answer for stricter evaluation
-const EVALUATION_PROMPT_WITH_REFERENCE = `You are a STRICT and CRITICAL evaluator for Large Language Model responses. Your task is to evaluate a response against a REFERENCE ANSWER using the G-Eval methodology.
+// LENIENT Template without reference answer
+const LENIENT_EVALUATION_PROMPT = `You are a fair and balanced evaluator for Large Language Model responses. Your task is to evaluate a response using the G-Eval methodology.
+
+Evaluate fairly - give credit where it's due. Good responses should score 4, excellent responses score 5.
+
+## Context
+**User Prompt/Question:**
+{prompt}
+
+**AI Response to Evaluate:**
+{response}
+
+## Evaluation Criteria (fair evaluation)
+
+1. **Coherence** (1-5): Structure and logical organization
+   - 1: No structure at all
+   - 2: Poor structure
+   - 3: Acceptable structure
+   - 4: Good, clear structure
+   - 5: Excellent organization
+
+2. **Consistency** (1-5): Internal consistency and factual accuracy
+   - 1: Major contradictions
+   - 2: Several issues
+   - 3: Minor issues
+   - 4: Mostly accurate
+   - 5: Fully consistent
+
+3. **Fluency** (1-5): Language quality and readability
+   - 1: Hard to read
+   - 2: Poor language
+   - 3: Readable
+   - 4: Good language
+   - 5: Excellent prose
+
+4. **Relevance** (1-5): How well it addresses the prompt
+   - 1: Off-topic
+   - 2: Partially relevant
+   - 3: Addresses main point
+   - 4: Good coverage
+   - 5: Comprehensive
+
+5. **Sentiment**: Overall tone of the response
+   - "positive": Helpful, encouraging, optimistic tone
+   - "neutral": Factual, objective, balanced tone
+   - "negative": Critical, pessimistic, discouraging tone
+
+## Response Format
+Respond with ONLY valid JSON (keep reasoning under 150 words):
+{
+  "coherence": <1-5>,
+  "consistency": <1-5>,
+  "fluency": <1-5>,
+  "relevance": <1-5>,
+  "sentiment": "<positive|neutral|negative>",
+  "reasoning": "<brief explanation, max 2-3 sentences>"
+}`;
+
+// STRICT Template with reference answer
+const STRICT_EVALUATION_WITH_REFERENCE = `You are a STRICT and CRITICAL evaluator for Large Language Model responses. Your task is to evaluate a response against a REFERENCE ANSWER using the G-Eval methodology.
 
 IMPORTANT: Be very critical! Compare the response to the reference. A score of 5 means the response is AS GOOD AS the reference. Most responses will score lower.
 
@@ -124,22 +182,88 @@ Respond with ONLY valid JSON (keep reasoning under 150 words):
   "reasoning": "<brief explanation, max 2-3 sentences>"
 }`;
 
+// LENIENT Template with reference answer
+const LENIENT_EVALUATION_WITH_REFERENCE = `You are a fair and balanced evaluator for Large Language Model responses. Your task is to evaluate a response against a REFERENCE ANSWER using the G-Eval methodology.
+
+Evaluate fairly - give credit where it's due. Compare to the reference but be reasonable.
+
+## Context
+**User Prompt/Question:**
+{prompt}
+
+**Reference/Expected Answer:**
+{reference}
+
+**AI Response to Evaluate:**
+{response}
+
+## Evaluation Criteria (compare to reference)
+
+1. **Coherence** (1-5): Structure compared to reference
+   - 1: Much worse structure
+   - 2: Noticeably worse
+   - 3: Comparable structure
+   - 4: Nearly as good
+   - 5: As good or better
+
+2. **Consistency** (1-5): Accuracy compared to reference
+   - 1: Major errors
+   - 2: Several inaccuracies
+   - 3: Some differences
+   - 4: Mostly matches
+   - 5: Fully consistent
+
+3. **Fluency** (1-5): Language quality compared to reference
+   - 1: Much worse
+   - 2: Noticeably worse
+   - 3: Comparable
+   - 4: Nearly as fluent
+   - 5: As fluent or better
+
+4. **Relevance** (1-5): Completeness compared to reference
+   - 1: Misses most points
+   - 2: Misses several points
+   - 3: Covers main points
+   - 4: Covers most points
+   - 5: Comprehensive
+
+5. **Sentiment**: Overall tone of the response
+   - "positive": Helpful, encouraging, optimistic tone
+   - "neutral": Factual, objective, balanced tone
+   - "negative": Critical, pessimistic, discouraging tone
+
+## Response Format
+Respond with ONLY valid JSON (keep reasoning under 150 words):
+{
+  "coherence": <1-5>,
+  "consistency": <1-5>,
+  "fluency": <1-5>,
+  "relevance": <1-5>,
+  "sentiment": "<positive|neutral|negative>",
+  "reasoning": "<brief explanation, max 2-3 sentences>"
+}`;
+
 /**
  * Создать промпт для оценки
  * @param {string} prompt - исходный промпт
  * @param {string} response - ответ для оценки
  * @param {string} [reference] - эталонный ответ (опционально)
+ * @param {boolean} [strictMode] - строгий режим оценки
  * @returns {string}
  */
-function buildEvaluationPrompt(prompt, response, reference = null) {
+function buildEvaluationPrompt(prompt, response, reference = null, strictMode = true) {
+  let template;
+
   if (reference) {
-    return EVALUATION_PROMPT_WITH_REFERENCE
+    template = strictMode ? STRICT_EVALUATION_WITH_REFERENCE : LENIENT_EVALUATION_WITH_REFERENCE;
+    return template
       .replace('{prompt}', prompt || 'N/A')
       .replace('{reference}', reference)
       .replace('{response}', response || 'Empty response');
   }
 
-  return EVALUATION_PROMPT_TEMPLATE
+  template = strictMode ? STRICT_EVALUATION_PROMPT : LENIENT_EVALUATION_PROMPT;
+  return template
     .replace('{prompt}', prompt || 'N/A')
     .replace('{response}', response || 'Empty response');
 }
@@ -194,17 +318,24 @@ function parseEvaluationResponse(responseText) {
  * Оценить один AI ответ
  * @param {Object} aiResponse - запись из ai_responses
  * @param {string} [referenceAnswer] - эталонный ответ (опционально)
+ * @param {Object} [options] - опции оценки
+ * @param {boolean} [options.strictMode=true] - строгий режим оценки
  * @returns {Promise<Object>}
  */
-export async function evaluateSingleResponse(aiResponse, referenceAnswer = null) {
+export async function evaluateSingleResponse(aiResponse, referenceAnswer = null, options = {}) {
+  const { strictMode = true } = options;
   const { id, prompt, response } = aiResponse;
 
-  const evaluationPrompt = buildEvaluationPrompt(prompt, response, referenceAnswer);
+  const evaluationPrompt = buildEvaluationPrompt(prompt, response, referenceAnswer, strictMode);
+
+  const systemContent = strictMode
+    ? 'You are a STRICT and CRITICAL LLM evaluator. Be harsh in your scoring. Score of 5 is rare. Always respond with valid JSON only.'
+    : 'You are a fair and balanced LLM evaluator. Give credit where it\'s due. Good responses deserve good scores. Always respond with valid JSON only.';
 
   const messages = [
     {
       role: 'system',
-      content: 'You are a STRICT and CRITICAL LLM evaluator. Be harsh in your scoring. Score of 5 is rare. Always respond with valid JSON only.',
+      content: systemContent,
     },
     {
       role: 'user',
@@ -213,7 +344,7 @@ export async function evaluateSingleResponse(aiResponse, referenceAnswer = null)
   ];
 
   logger.info(
-    { aiResponseId: id, hasReference: !!referenceAnswer },
+    { aiResponseId: id, hasReference: !!referenceAnswer, strictMode },
     'Sending evaluation request to LLM'
   );
 

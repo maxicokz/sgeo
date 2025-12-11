@@ -29,6 +29,7 @@ export async function evaluateRoutes(fastify) {
         type: 'object',
         properties: {
           limit: { type: 'integer', minimum: 1, maximum: 1000, default: 10 },
+          strictMode: { type: 'boolean', default: true },
         },
       },
       response: {
@@ -45,9 +46,9 @@ export async function evaluateRoutes(fastify) {
       },
     },
     handler: async (request, reply) => {
-      const { limit = 10 } = request.query;
+      const { limit = 10, strictMode = true } = request.query;
 
-      logger.info({ limit }, 'Starting evaluation of new responses');
+      logger.info({ limit, strictMode }, 'Starting evaluation of new responses');
 
       try {
         // Получаем неоцененные AI ответы
@@ -77,7 +78,8 @@ export async function evaluateRoutes(fastify) {
               // Оцениваем с эталоном или без
               const evaluation = await evaluateSingleResponse(
                 aiResponse,
-                reference?.reference_full || null
+                reference?.reference_full || null,
+                { strictMode }
               );
 
               return {
