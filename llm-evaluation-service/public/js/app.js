@@ -119,7 +119,7 @@ async function loadScheduler() {
 // Load evaluation results
 async function loadResults() {
   const tbody = document.getElementById('resultsBody');
-  tbody.innerHTML = '<tr><td colspan="9" class="loading">Загрузка...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="10" class="loading">Загрузка...</td></tr>';
 
   try {
     const offset = currentPage * pageSize;
@@ -145,7 +145,7 @@ async function loadResults() {
 
       if (data.data.length === 0) {
         tbody.innerHTML =
-          '<tr><td colspan="9" class="no-data">Нет данных</td></tr>';
+          '<tr><td colspan="10" class="no-data">Нет данных</td></tr>';
         return;
       }
 
@@ -162,6 +162,7 @@ async function loadResults() {
             <td>${formatScore(row.fluency)}</td>
             <td>${formatScore(row.relevance)}</td>
             <td>${formatAvgScore(row.avg_score)}</td>
+            <td>${formatSentiment(row.sentiment)}</td>
             <td>${formatDate(row.evaluated_at)}</td>
             <td class="actions-cell">
               <button class="details-btn" onclick="showDetails(${index})">
@@ -178,7 +179,7 @@ async function loadResults() {
   } catch (error) {
     console.error('Failed to load results:', error);
     tbody.innerHTML =
-      '<tr><td colspan="9" class="no-data">Ошибка загрузки</td></tr>';
+      '<tr><td colspan="10" class="no-data">Ошибка загрузки</td></tr>';
   }
 }
 
@@ -385,6 +386,20 @@ function formatAvgScore(score) {
   return `<span class="score-badge ${badgeClass}">${Math.round(score)}%</span>`;
 }
 
+// Helper: Format sentiment
+function formatSentiment(sentiment) {
+  if (!sentiment) return '-';
+
+  const labels = {
+    positive: { text: 'Позитивная', class: 'sentiment-positive' },
+    neutral: { text: 'Нейтральная', class: 'sentiment-neutral' },
+    negative: { text: 'Негативная', class: 'sentiment-negative' }
+  };
+
+  const config = labels[sentiment] || labels.neutral;
+  return `<span class="sentiment-badge ${config.class}">${config.text}</span>`;
+}
+
 // Helper: Format date
 function formatDate(dateStr) {
   if (!dateStr) return '-';
@@ -450,7 +465,7 @@ async function exportCSV() {
     }
 
     // CSV header
-    const headers = ['Модель', 'Промпт', 'Ответ', 'Coherence', 'Consistency', 'Fluency', 'Relevance', 'Avg Score', 'Дата оценки', 'Модель-оценщик', 'Обоснование'];
+    const headers = ['Модель', 'Промпт', 'Ответ', 'Coherence', 'Consistency', 'Fluency', 'Relevance', 'Avg Score', 'Тональность', 'Дата оценки', 'Модель-оценщик', 'Обоснование'];
 
     // CSV rows
     const rows = allData.map(row => {
@@ -464,6 +479,7 @@ async function exportCSV() {
         row.fluency || '',
         row.relevance || '',
         row.avg_score || '',
+        row.sentiment || '',
         row.evaluated_at || '',
         escapeCsvField(row.evaluator_model || ''),
         escapeCsvField(row.reasoning || '')
@@ -499,6 +515,7 @@ async function exportJSON() {
         relevance: row.relevance,
         avg_score: row.avg_score
       },
+      sentiment: row.sentiment,
       evaluated_at: row.evaluated_at,
       evaluator_model: row.evaluator_model,
       reasoning: row.reasoning

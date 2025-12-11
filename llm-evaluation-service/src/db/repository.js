@@ -122,6 +122,7 @@ export async function getEvaluationResults({ limit = 50, offset = 0 } = {}) {
       consistency,
       fluency,
       relevance,
+      sentiment,
       avg_score,
       evaluated_at,
       evaluator_model,

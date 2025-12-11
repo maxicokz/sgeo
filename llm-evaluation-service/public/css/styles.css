@@ -417,6 +417,29 @@ tr:hover {
   color: var(--danger);
 }
 
+.sentiment-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.7rem;
+}
+
+.sentiment-positive {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success);
+}
+
+.sentiment-neutral {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--secondary);
+}
+
+.sentiment-negative {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
 .details-btn {
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;

@@ -47,6 +47,11 @@ IMPORTANT: Be very critical! Most responses have flaws. A score of 5 should be R
    - 4: Addresses prompt well, minor gaps
    - 5: EXCEPTIONAL - comprehensive (rare!)
 
+5. **Sentiment**: Overall tone of the response
+   - "positive": Helpful, encouraging, optimistic tone
+   - "neutral": Factual, objective, balanced tone
+   - "negative": Critical, pessimistic, discouraging tone
+
 ## Response Format
 Respond with ONLY valid JSON:
 {
@@ -54,6 +59,7 @@ Respond with ONLY valid JSON:
   "consistency": <1-5>,
   "fluency": <1-5>,
   "relevance": <1-5>,
+  "sentiment": "<positive|neutral|negative>",
   "reasoning": "<explain WHY you gave these scores, be specific about flaws>"
 }`;
 
@@ -102,6 +108,11 @@ IMPORTANT: Be very critical! Compare the response to the reference. A score of 5
    - 4: Covers most key points
    - 5: Covers all points as well as reference
 
+5. **Sentiment**: Overall tone of the response
+   - "positive": Helpful, encouraging, optimistic tone
+   - "neutral": Factual, objective, balanced tone
+   - "negative": Critical, pessimistic, discouraging tone
+
 ## Response Format
 Respond with ONLY valid JSON:
 {
@@ -109,6 +120,7 @@ Respond with ONLY valid JSON:
   "consistency": <1-5>,
   "fluency": <1-5>,
   "relevance": <1-5>,
+  "sentiment": "<positive|neutral|negative>",
   "reasoning": "<explain scores, specifically compare to reference>"
 }`;
 
@@ -148,7 +160,7 @@ function parseEvaluationResponse(responseText) {
 
     const parsed = JSON.parse(jsonMatch[0]);
 
-    // Валидация
+    // Валидация числовых оценок
     const { coherence, consistency, fluency, relevance } = parsed;
     const scores = [coherence, consistency, fluency, relevance];
 
@@ -159,11 +171,17 @@ function parseEvaluationResponse(responseText) {
       return null;
     }
 
+    // Валидация sentiment
+    const validSentiments = ['positive', 'neutral', 'negative'];
+    const sentiment = parsed.sentiment?.toLowerCase();
+    const validatedSentiment = validSentiments.includes(sentiment) ? sentiment : 'neutral';
+
     return {
       coherence,
       consistency,
       fluency,
       relevance,
+      sentiment: validatedSentiment,
       reasoning: parsed.reasoning || null,
     };
   } catch (error) {
@@ -238,6 +256,7 @@ export async function evaluateSingleResponse(aiResponse, referenceAnswer = null)
     consistency: scores.consistency,
     fluency: scores.fluency,
     relevance: scores.relevance,
+    sentiment: scores.sentiment,
     avg_score: avgScore,
     evaluated_at: new Date().toISOString(),
     evaluator_model: config.openRouter.model,
