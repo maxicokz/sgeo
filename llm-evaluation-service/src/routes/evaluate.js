@@ -28,7 +28,7 @@ export async function evaluateRoutes(fastify) {
       querystring: {
         type: 'object',
         properties: {
-          limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+          limit: { type: 'integer', minimum: 1, maximum: 1000, default: 10 },
         },
       },
       response: {
